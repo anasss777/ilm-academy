@@ -1,0 +1,870 @@
+// =============================================================================
+// Online Learning & Course Management Platform: Prisma schema (v1)
+// Stack: Next.js + Supabase (PostgreSQL) + Prisma
+//
+// Conventions
+//  - Tables are snake_case via @@map; columns stay camelCase (quote them in raw SQL).
+//  - All timestamps are stored in UTC (timestamptz). Lectures also keep an IANA timezone for display.
+//  - Public, bilingual content uses *Ar / *En columns. Instructor/student-authored text is single-language.
+//  - Soft delete (deletedAt) on lectures, questions, exams, materials, users.
+//  - Derived values (attendance %, question score %, eligibility) are computed live, never stored.
+//    The only stored snapshots are certificate_export_items.
+//  - Constraints Prisma cannot express (partial unique indexes, CHECKs, RLS) live in
+//    prisma/migrations_raw/post_init.sql.
+//
+// Prisma 7 note: if you are on Prisma 7+, move `url` / `directUrl` out of this file
+// into prisma.config.ts; the models below are unaffected.
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+// ----------------------------------------------------------------------------
+// Enums
+// ----------------------------------------------------------------------------
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  WITHDRAWN
+}
+
+enum AttendanceStatus {
+  PRESENT
+  PARTIAL
+  ABSENT
+  EXCUSED
+}
+
+enum AttendanceSource {
+  MANUAL
+  IMPORT
+  ZOOM
+}
+
+enum RecordingProvider {
+  GOOGLE_DRIVE
+  ONEDRIVE
+  YOUTUBE
+  OTHER
+}
+
+enum Visibility {
+  PUBLIC      // anyone, including logged-out visitors
+  SIGNED_IN   // any authenticated user
+  ENROLLED    // active enrollment in the course
+}
+
+enum MaterialType {
+  PDF
+  DOC
+  OTHER
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  OPEN
+}
+
+enum PenaltyType {
+  NONE
+  PERCENT
+  POINTS
+}
+
+enum AnswerRevealMode {
+  AFTER_GRADE_AND_DEADLINE // grade released AND the student's (extended) deadline has passed
+  AFTER_GRADE              // as soon as the student's own grade is released
+  NEVER
+}
+
+enum ExamAttemptStatus {
+  IN_PROGRESS
+  SUBMITTED   // submitted, may still need manual grading
+  GRADED      // all questions graded
+}
+
+enum CertificateStatus {
+  PENDING
+  AUTO_ELIGIBLE
+  AUTO_INELIGIBLE
+  APPROVED
+  REJECTED
+}
+
+// ----------------------------------------------------------------------------
+// Organization (single seeded "General" org for now)
+// ----------------------------------------------------------------------------
+
+model Organization {
+  id        String   @id @default(uuid()) @db.Uuid
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  users   User[]
+  courses Course[]
+  roles   Role[]
+
+  @@map("organizations")
+}
+
+// ----------------------------------------------------------------------------
+// Users, roles, permissions
+// ----------------------------------------------------------------------------
+
+model User {
+  // Must equal auth.users.id (Supabase Auth). No default: the app inserts it.
+  id             String     @id @db.Uuid
+  organizationId String     @default("00000000-0000-0000-0000-000000000001") @db.Uuid
+  email          String     @unique
+  fullName       String
+  phone          String
+  country        String
+  locale         String     @default("ar") // 'ar' | 'en'
+  timezone       String     @default("UTC") // IANA, e.g. 'Africa/Tunis'
+  emailNotifications Boolean @default(true)
+  avatarPath     String?
+  bioAr          String?
+  bioEn          String?
+  telegramUsername String?
+  telegramChatId   String? // reserved for the future Telegram integration
+  status         UserStatus @default(ACTIVE)
+
+  // Privacy: consent to share data with the third-party certificate organization.
+  dataSharingConsentAt DateTime? @db.Timestamptz(6)
+
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(6)
+  deletedAt DateTime? @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  userRoles                UserRole[]
+  userRolesGranted         UserRole[]            @relation("UserRoleGrantedBy")
+  instructingCourses       CourseInstructor[]
+  enrollments              Enrollment[]
+  attendanceRecords        AttendanceRecord[]    @relation("AttendanceStudent")
+  attendanceRecorded       AttendanceRecord[]    @relation("AttendanceRecordedBy")
+  submissions              QuestionSubmission[]  @relation("SubmissionStudent")
+  submissionsGraded        QuestionSubmission[]  @relation("SubmissionGradedBy")
+  submissionExcusesGranted QuestionSubmission[]  @relation("SubmissionExcusedBy")
+  extensionsReceived       DeadlineExtension[]   @relation("ExtensionStudent")
+  extensionsGranted        DeadlineExtension[]   @relation("ExtensionGrantedBy")
+  examAttempts             ExamAttempt[]
+  examAnswersGraded        ExamAnswer[]
+  attemptGrantsReceived    ExamAttemptGrant[]    @relation("AttemptGrantStudent")
+  attemptGrantsMade        ExamAttemptGrant[]    @relation("AttemptGrantBy")
+  requirementsCreated      CertificateRequirement[]
+  certificateReviews       CertificateReview[]   @relation("ReviewStudent")
+  certificateDecisions     CertificateReview[]   @relation("ReviewDecidedBy")
+  certificateExports       CertificateExport[]
+  certificateExportItems   CertificateExportItem[]
+  notifications            Notification[]
+  auditLogs                AuditLog[]
+
+  @@index([organizationId])
+  @@map("users")
+}
+
+model Role {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @default("00000000-0000-0000-0000-000000000001") @db.Uuid
+  key            String   // 'owner' | 'instructor' | 'assistant' | 'student' | custom
+  name           String
+  isSystem       Boolean  @default(false)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+
+  organization Organization     @relation(fields: [organizationId], references: [id])
+  permissions  RolePermission[]
+  userRoles    UserRole[]
+
+  @@unique([organizationId, key])
+  @@map("roles")
+}
+
+model Permission {
+  id          String  @id @default(uuid()) @db.Uuid
+  key         String  @unique // e.g. 'submission.grade', 'exam.reopen'
+  description String?
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String @db.Uuid
+  permissionId String @db.Uuid
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model UserRole {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @db.Uuid
+  roleId      String   @db.Uuid
+  // NULL = role applies organization-wide; set = role applies only to this course
+  courseId    String?  @db.Uuid
+  grantedById String?  @db.Uuid
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role    @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  course    Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  grantedBy User?   @relation("UserRoleGrantedBy", fields: [grantedById], references: [id], onDelete: SetNull)
+
+  // NULL courseId rows are covered by a partial unique index in post_init.sql
+  @@unique([userId, roleId, courseId])
+  @@index([userId])
+  @@map("user_roles")
+}
+
+// ----------------------------------------------------------------------------
+// Courses
+// ----------------------------------------------------------------------------
+
+model Course {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @default("00000000-0000-0000-0000-000000000001") @db.Uuid
+  slug           String
+  titleAr        String
+  titleEn        String?
+  shortDescAr    String?
+  shortDescEn    String?
+  descriptionAr  String?
+  descriptionEn  String?
+  coverImagePath String?
+  language       String       @default("ar")
+  status         CourseStatus @default(DRAFT)
+  enrollmentOpen Boolean      @default(true)
+
+  targetAudienceAr String?
+  targetAudienceEn String?
+  // Optional; hidden in the UI when empty
+  prerequisitesAr  String?
+  prerequisitesEn  String?
+  formatAr         String?
+  formatEn         String?
+  lectureFrequencyAr String?
+  lectureFrequencyEn String?
+
+  // Feature toggles (no hard-coded course types)
+  attendanceEnabled  Boolean @default(true)
+  questionsEnabled   Boolean @default(true)
+  examEnabled        Boolean @default(false)
+  certificateEnabled Boolean @default(false)
+  recordingsEnabled  Boolean @default(true)
+
+  publishedAt DateTime? @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  settings               CourseSettings?
+  instructors            CourseInstructor[]
+  objectives             CourseObjective[]
+  faqs                   CourseFaq[]
+  enrollments            Enrollment[]
+  lectures               Lecture[]
+  materials              Material[]
+  attendanceRecords      AttendanceRecord[]
+  exams                  Exam[]
+  questions              Question[]
+  certificateRequirements CertificateRequirement[]
+  certificateReviews     CertificateReview[]
+  certificateExports     CertificateExport[]
+  userRoles              UserRole[]
+
+  @@unique([organizationId, slug])
+  @@index([status])
+  @@map("courses")
+}
+
+// Per-course business rules (the former "open requirements" from TRD section 38)
+model CourseSettings {
+  courseId String @id @db.Uuid
+
+  // Fraction of a lecture credited when attendance is PARTIAL (0..1). 1 = counts fully.
+  partialWeight Decimal @default(1.00) @db.Decimal(3, 2)
+
+  // Late submissions
+  allowLateSubmissions  Boolean     @default(true)
+  defaultPenaltyType    PenaltyType @default(NONE) // pre-fill only; grader decides per submission
+  defaultPenaltyValue   Decimal     @default(0) @db.Decimal(6, 2)
+
+  // Correct-answer visibility (also used for exam answer keys)
+  answerRevealMode AnswerRevealMode @default(AFTER_GRADE_AND_DEADLINE)
+
+  // Default visibility for new recordings / materials
+  recordingsVisibility Visibility @default(PUBLIC)
+  materialsVisibility  Visibility @default(PUBLIC)
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@map("course_settings")
+}
+
+model CourseInstructor {
+  courseId     String @db.Uuid
+  userId       String @db.Uuid
+  displayOrder Int    @default(0)
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@id([courseId, userId])
+  @@map("course_instructors")
+}
+
+model CourseObjective {
+  id       String @id @default(uuid()) @db.Uuid
+  courseId String @db.Uuid
+  textAr   String
+  textEn   String?
+  position Int    @default(0)
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId, position])
+  @@map("course_objectives")
+}
+
+model CourseFaq {
+  id         String  @id @default(uuid()) @db.Uuid
+  courseId   String  @db.Uuid
+  questionAr String
+  questionEn String?
+  answerAr   String
+  answerEn   String?
+  position   Int     @default(0)
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId, position])
+  @@map("course_faqs")
+}
+
+// A student has exactly one enrollment row per course.
+// Withdrawing sets status = WITHDRAWN; re-enrolling flips it back, so history is never lost.
+model Enrollment {
+  id          String           @id @default(uuid()) @db.Uuid
+  userId      String           @db.Uuid
+  courseId    String           @db.Uuid
+  status      EnrollmentStatus @default(ACTIVE)
+  enrolledAt  DateTime         @default(now()) @db.Timestamptz(6)
+  withdrawnAt DateTime?        @db.Timestamptz(6)
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+  @@index([courseId, status])
+  @@map("enrollments")
+}
+
+// ----------------------------------------------------------------------------
+// Lectures, recordings, materials
+// ----------------------------------------------------------------------------
+
+model Lecture {
+  id            String        @id @default(uuid()) @db.Uuid
+  courseId      String        @db.Uuid
+  number        Int
+  titleAr       String
+  titleEn       String?
+  descriptionAr String?
+  descriptionEn String?
+  startsAt      DateTime      @db.Timestamptz(6)
+  endsAt        DateTime      @db.Timestamptz(6)
+  timezone      String        @default("UTC")
+
+  // Zoom (entered manually in v1). Only returned by the API to authorized students.
+  zoomUrl       String?
+  zoomMeetingId String?
+  zoomPassword  String?
+
+  status    PublishStatus @default(DRAFT)
+  createdAt DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime      @updatedAt @db.Timestamptz(6)
+  deletedAt DateTime?     @db.Timestamptz(6)
+
+  course            Course             @relation(fields: [courseId], references: [id])
+  recordings        Recording[]
+  materials         Material[]
+  attendanceRecords AttendanceRecord[]
+  questions         Question[]
+
+  // (courseId, number) uniqueness among non-deleted lectures: partial index in post_init.sql
+  @@index([courseId, startsAt])
+  @@map("lectures")
+}
+
+model Recording {
+  id              String            @id @default(uuid()) @db.Uuid
+  lectureId       String            @db.Uuid
+  titleAr         String?
+  titleEn         String?
+  provider        RecordingProvider
+  url             String            // original share link
+  embedUrl        String?           // derived embeddable URL
+  durationSeconds Int?
+  position        Int               @default(0)
+  visibility      Visibility        @default(PUBLIC)
+  status          PublishStatus     @default(DRAFT)
+  publishedAt     DateTime?         @db.Timestamptz(6)
+  createdAt       DateTime          @default(now()) @db.Timestamptz(6)
+
+  lecture Lecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+
+  @@index([lectureId, position])
+  @@map("recordings")
+}
+
+// PDFs / docs attached to a course or to a specific lecture
+model Material {
+  id           String       @id @default(uuid()) @db.Uuid
+  courseId     String       @db.Uuid
+  lectureId    String?      @db.Uuid
+  titleAr      String
+  titleEn      String?
+  type         MaterialType
+  storagePath  String?      // Supabase Storage path, OR
+  externalUrl  String?      // external link (Drive, OneDrive, ...)
+  visibility   Visibility   @default(PUBLIC)
+  status       PublishStatus @default(DRAFT)
+  position     Int          @default(0)
+  createdAt    DateTime     @default(now()) @db.Timestamptz(6)
+  deletedAt    DateTime?    @db.Timestamptz(6)
+
+  course  Course   @relation(fields: [courseId], references: [id])
+  lecture Lecture? @relation(fields: [lectureId], references: [id])
+
+  @@index([courseId, lectureId])
+  @@map("materials")
+}
+
+// ----------------------------------------------------------------------------
+// Attendance (manual in v1)
+// ----------------------------------------------------------------------------
+
+// A missing row is treated as ABSENT. EXCUSED lectures are removed from that
+// student's denominator (attendance AND the lecture's question points).
+model AttendanceRecord {
+  id              String           @id @default(uuid()) @db.Uuid
+  courseId        String           @db.Uuid // denormalized for fast aggregation
+  lectureId       String           @db.Uuid
+  userId          String           @db.Uuid
+  status          AttendanceStatus
+  source          AttendanceSource @default(MANUAL)
+  // Optional: kept for a future Zoom sync
+  minutesAttended Int?
+  joinedAt        DateTime?        @db.Timestamptz(6)
+  leftAt          DateTime?        @db.Timestamptz(6)
+  note            String?
+  recordedById    String?          @db.Uuid
+  createdAt       DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @db.Timestamptz(6)
+
+  course     Course  @relation(fields: [courseId], references: [id])
+  lecture    Lecture @relation(fields: [lectureId], references: [id])
+  user       User    @relation("AttendanceStudent", fields: [userId], references: [id])
+  recordedBy User?   @relation("AttendanceRecordedBy", fields: [recordedById], references: [id], onDelete: SetNull)
+
+  @@unique([lectureId, userId])
+  @@index([courseId, userId])
+  @@map("attendance_records")
+}
+
+// ----------------------------------------------------------------------------
+// Exams
+// ----------------------------------------------------------------------------
+
+model Exam {
+  id             String        @id @default(uuid()) @db.Uuid
+  courseId       String        @db.Uuid
+  titleAr        String
+  titleEn        String?
+  descriptionAr  String?
+  descriptionEn  String?
+  opensAt        DateTime?     @db.Timestamptz(6)
+  dueAt          DateTime?     @db.Timestamptz(6)
+  // Pass mark as a percentage of total question points (separate from the certificate threshold)
+  passingPercent Decimal       @default(50) @db.Decimal(5, 2)
+  attemptLimit   Int           @default(1)
+  status         PublishStatus @default(DRAFT)
+  createdAt      DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime      @updatedAt @db.Timestamptz(6)
+  deletedAt      DateTime?     @db.Timestamptz(6)
+
+  course    Course             @relation(fields: [courseId], references: [id])
+  questions Question[]
+  attempts  ExamAttempt[]
+  grants    ExamAttemptGrant[]
+
+  @@index([courseId])
+  @@map("exams")
+}
+
+// ----------------------------------------------------------------------------
+// Questions (shared by lectures and exams)
+// ----------------------------------------------------------------------------
+
+// Exactly one of lectureId / examId is set (CHECK in post_init.sql).
+// MULTIPLE_CHOICE and TRUE_FALSE are auto-graded from QuestionOption.isCorrect.
+// OPEN questions are graded manually and released by the grader.
+model Question {
+  id          String        @id @default(uuid()) @db.Uuid
+  courseId    String        @db.Uuid
+  lectureId   String?       @db.Uuid
+  examId      String?       @db.Uuid
+  type        QuestionType
+  body        String
+  explanation String?       // shown together with correct answers (per answerRevealMode)
+  points      Decimal       @default(1) @db.Decimal(7, 2)
+  position    Int           @default(0)
+  status      PublishStatus @default(DRAFT)
+
+  // Lecture questions only (exam deadlines live on Exam)
+  dueAt        DateTime? @db.Timestamptz(6)
+  lateCutoffAt DateTime? @db.Timestamptz(6) // after this, no submissions at all
+  allowLate    Boolean?  // null = inherit CourseSettings.allowLateSubmissions
+
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(6)
+  deletedAt DateTime? @db.Timestamptz(6)
+
+  course  Course   @relation(fields: [courseId], references: [id])
+  lecture Lecture? @relation(fields: [lectureId], references: [id])
+  exam    Exam?    @relation(fields: [examId], references: [id])
+
+  options     QuestionOption[]
+  submissions QuestionSubmission[]
+  extensions  DeadlineExtension[]
+  examAnswers ExamAnswer[]
+
+  @@index([lectureId])
+  @@index([examId, position])
+  @@index([courseId])
+  @@map("questions")
+}
+
+// TRUE_FALSE questions use two options (true / false) so grading is uniform.
+// NEVER serialize isCorrect to the client before the reveal rules allow it.
+model QuestionOption {
+  id         String  @id @default(uuid()) @db.Uuid
+  questionId String  @db.Uuid
+  text       String
+  isCorrect  Boolean @default(false)
+  position   Int     @default(0)
+
+  question          Question             @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  submissionsChosen QuestionSubmission[]
+  examAnswersChosen ExamAnswer[]
+
+  @@index([questionId, position])
+  @@map("question_options")
+}
+
+// ----------------------------------------------------------------------------
+// Lecture-question submissions & grading
+// ----------------------------------------------------------------------------
+
+// finalScore = rawScore minus penalty, where the penalty applies only if
+// isLate AND NOT excuseGranted. Computed by the app at grading time.
+// Visible to the student only when releasedAt IS NOT NULL
+// (objective questions are released automatically at submission).
+model QuestionSubmission {
+  id               String   @id @default(uuid()) @db.Uuid
+  questionId       String   @db.Uuid
+  userId           String   @db.Uuid
+  answerText       String?
+  selectedOptionId String?  @db.Uuid
+  submittedAt      DateTime @default(now()) @db.Timestamptz(6)
+  isLate           Boolean  @default(false)
+
+  // Excuse (waives the late penalty)
+  excuseGranted     Boolean   @default(false)
+  excuseReason      String?
+  excuseGrantedById String?   @db.Uuid
+  excuseGrantedAt   DateTime? @db.Timestamptz(6)
+
+  // Grade
+  rawScore     Decimal?    @db.Decimal(7, 2)
+  penaltyType  PenaltyType @default(NONE)
+  penaltyValue Decimal     @default(0) @db.Decimal(6, 2)
+  finalScore   Decimal?    @db.Decimal(7, 2)
+  feedback     String?
+  gradedById   String?     @db.Uuid
+  gradedAt     DateTime?   @db.Timestamptz(6)
+  releasedAt   DateTime?   @db.Timestamptz(6)
+
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  question       Question        @relation(fields: [questionId], references: [id])
+  user           User            @relation("SubmissionStudent", fields: [userId], references: [id])
+  selectedOption QuestionOption? @relation(fields: [selectedOptionId], references: [id])
+  gradedBy       User?           @relation("SubmissionGradedBy", fields: [gradedById], references: [id], onDelete: SetNull)
+  excuseGrantedBy User?          @relation("SubmissionExcusedBy", fields: [excuseGrantedById], references: [id], onDelete: SetNull)
+
+  @@unique([questionId, userId])
+  @@index([userId])
+  @@index([questionId, gradedAt]) // ungraded queue
+  @@map("question_submissions")
+}
+
+// Per-student deadline extension / "reopen" for a lecture question.
+model DeadlineExtension {
+  id          String   @id @default(uuid()) @db.Uuid
+  questionId  String   @db.Uuid
+  userId      String   @db.Uuid
+  newDueAt    DateTime @db.Timestamptz(6)
+  reason      String?
+  grantedById String   @db.Uuid
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+
+  question  Question @relation(fields: [questionId], references: [id])
+  user      User     @relation("ExtensionStudent", fields: [userId], references: [id])
+  grantedBy User     @relation("ExtensionGrantedBy", fields: [grantedById], references: [id])
+
+  @@unique([questionId, userId])
+  @@map("deadline_extensions")
+}
+
+// ----------------------------------------------------------------------------
+// Exam attempts, answers, reopen grants
+// ----------------------------------------------------------------------------
+
+model ExamAttempt {
+  id            String            @id @default(uuid()) @db.Uuid
+  examId        String            @db.Uuid
+  userId        String            @db.Uuid
+  attemptNumber Int               @default(1)
+  status        ExamAttemptStatus @default(IN_PROGRESS)
+  startedAt     DateTime          @default(now()) @db.Timestamptz(6)
+  submittedAt   DateTime?         @db.Timestamptz(6)
+  gradedAt      DateTime?         @db.Timestamptz(6)
+  releasedAt    DateTime?         @db.Timestamptz(6)
+  // Sum of answer scores; final only when status = GRADED
+  totalScore    Decimal?          @db.Decimal(8, 2)
+
+  exam    Exam         @relation(fields: [examId], references: [id])
+  user    User         @relation(fields: [userId], references: [id])
+  answers ExamAnswer[]
+
+  @@unique([examId, userId, attemptNumber])
+  @@index([examId, status])
+  @@map("exam_attempts")
+}
+
+model ExamAnswer {
+  id               String    @id @default(uuid()) @db.Uuid
+  attemptId        String    @db.Uuid
+  questionId       String    @db.Uuid
+  answerText       String?
+  selectedOptionId String?   @db.Uuid
+  isCorrect        Boolean?  // set by auto-grading for objective questions
+  score            Decimal?  @db.Decimal(7, 2)
+  feedback         String?
+  gradedById       String?   @db.Uuid // null = auto-graded
+  gradedAt         DateTime? @db.Timestamptz(6)
+
+  attempt        ExamAttempt     @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       Question        @relation(fields: [questionId], references: [id])
+  selectedOption QuestionOption? @relation(fields: [selectedOptionId], references: [id])
+  gradedBy       User?           @relation(fields: [gradedById], references: [id], onDelete: SetNull)
+
+  @@unique([attemptId, questionId])
+  @@map("exam_answers")
+}
+
+// Instructor-only "reopen": grants a student extra attempts and/or a new deadline.
+// allowed attempts = exam.attemptLimit + SUM(extraAttempts)
+model ExamAttemptGrant {
+  id            String    @id @default(uuid()) @db.Uuid
+  examId        String    @db.Uuid
+  userId        String    @db.Uuid
+  extraAttempts Int       @default(1)
+  newDueAt      DateTime? @db.Timestamptz(6)
+  reason        String?
+  grantedById   String    @db.Uuid
+  createdAt     DateTime  @default(now()) @db.Timestamptz(6)
+
+  exam      Exam @relation(fields: [examId], references: [id])
+  user      User @relation("AttemptGrantStudent", fields: [userId], references: [id])
+  grantedBy User @relation("AttemptGrantBy", fields: [grantedById], references: [id])
+
+  @@index([examId, userId])
+  @@map("exam_attempt_grants")
+}
+
+// ----------------------------------------------------------------------------
+// Certificates
+// ----------------------------------------------------------------------------
+
+// Versioned. A NULL threshold means that requirement is disabled.
+// Exactly one row per course has isCurrent = true (partial unique index).
+model CertificateRequirement {
+  id                      String   @id @default(uuid()) @db.Uuid
+  courseId                String   @db.Uuid
+  version                 Int
+  isCurrent               Boolean  @default(true)
+  minAttendancePercent    Decimal? @db.Decimal(5, 2)
+  minQuestionScorePercent Decimal? @db.Decimal(5, 2)
+  minExamPercent          Decimal? @db.Decimal(5, 2)
+  createdById             String   @db.Uuid
+  createdAt               DateTime @default(now()) @db.Timestamptz(6)
+
+  course    Course @relation(fields: [courseId], references: [id])
+  createdBy User   @relation(fields: [createdById], references: [id])
+
+  @@unique([courseId, version])
+  @@map("certificate_requirements")
+}
+
+// Review state per student per course.
+// PENDING -> AUTO_ELIGIBLE | AUTO_INELIGIBLE -> APPROVED | REJECTED (instructor)
+// needsReReview is raised when requirements change after a decision.
+model CertificateReview {
+  id                 String            @id @default(uuid()) @db.Uuid
+  courseId           String            @db.Uuid
+  userId             String            @db.Uuid
+  status             CertificateStatus @default(PENDING)
+  requirementVersion Int?              // version the current status was evaluated/approved against
+  needsReReview      Boolean           @default(false)
+  overrideReason     String?           // required when the decision contradicts the auto result
+  decidedById        String?           @db.Uuid
+  decidedAt          DateTime?         @db.Timestamptz(6)
+  updatedAt          DateTime          @updatedAt @db.Timestamptz(6)
+
+  course    Course @relation(fields: [courseId], references: [id])
+  user      User   @relation("ReviewStudent", fields: [userId], references: [id])
+  decidedBy User?  @relation("ReviewDecidedBy", fields: [decidedById], references: [id], onDelete: SetNull)
+
+  @@unique([courseId, userId])
+  @@index([courseId, status])
+  @@map("certificate_reviews")
+}
+
+// Snapshot taken at export time: who was sent, and under which rules.
+model CertificateExport {
+  id                 String   @id @default(uuid()) @db.Uuid
+  courseId           String   @db.Uuid
+  exportedById       String   @db.Uuid
+  requirementVersion Int
+  rulesSnapshot      Json
+  itemCount          Int
+  exportedAt         DateTime @default(now()) @db.Timestamptz(6)
+
+  course     Course                  @relation(fields: [courseId], references: [id])
+  exportedBy User                    @relation(fields: [exportedById], references: [id])
+  items      CertificateExportItem[]
+
+  @@index([courseId, exportedAt])
+  @@map("certificate_exports")
+}
+
+model CertificateExportItem {
+  id        String @id @default(uuid()) @db.Uuid
+  exportId  String @db.Uuid
+  userId    String @db.Uuid
+
+  // Identity as it was at export time
+  fullName String
+  email    String
+  phone    String
+  country  String
+
+  // Computed values at export time
+  totalLectures        Int
+  attendedLectures     Decimal  @db.Decimal(6, 2) // partial-weighted
+  requiredLectures     Int?
+  attendancePercent    Decimal? @db.Decimal(5, 2)
+  questionScorePercent Decimal? @db.Decimal(5, 2)
+  examPercent          Decimal? @db.Decimal(5, 2)
+
+  export CertificateExport @relation(fields: [exportId], references: [id], onDelete: Cascade)
+  user   User              @relation(fields: [userId], references: [id])
+
+  @@unique([exportId, userId])
+  @@map("certificate_export_items")
+}
+
+// ----------------------------------------------------------------------------
+// Notifications & audit
+// ----------------------------------------------------------------------------
+
+// Stored as type + payload so each message is rendered in the reader's locale (ar/en).
+model Notification {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  type      String    // e.g. 'lecture.upcoming', 'question.graded'
+  payload   Json      @default("{}")
+  readAt    DateTime? @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  dedupeKey     String?   @unique
+  emailedAt     DateTime? @db.Timestamptz(6)
+  emailAttempts Int       @default(0)
+  emailError    String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt])
+  @@index([emailedAt, createdAt])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  actorId    String?  @db.Uuid
+  action     String   // e.g. 'submission.grade', 'attendance.update'
+  entityType String
+  entityId   String
+  metadata   Json     @default("{}") // before/after values, reason, etc.
+  ip         String?
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([actorId, createdAt])
+  @@map("audit_logs")
+}
+
+
+model RateLimit {
+  key         String
+  windowStart DateTime @db.Timestamptz(6)
+  count       Int      @default(0)
+
+  @@id([key, windowStart])
+  @@index([windowStart])
+  @@map("rate_limits")
+}
