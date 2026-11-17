@@ -70,7 +70,7 @@ export default async function CoursePage({
   const format = pick(course.formatAr, course.formatEn);
   const frequency = pick(course.lectureFrequencyAr, course.lectureFrequencyEn);
   const cover = coverImageUrl(
-    process.env.SUPABASE_URL ?? "",
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
     course.coverImagePath,
   );
 

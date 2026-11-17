@@ -4,7 +4,7 @@
 // Uses supabase.auth.getUser(), which validates the token with Supabase on every call.
 // (getSession() only reads the cookie and must not be trusted for authorization.)
 // Requires: npm i @supabase/ssr @supabase/supabase-js
-// Env: SUPABASE_URL and SUPABASE_ANON_KEY
+// Env: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
 //      (if your project uses the newer "publishable key", point the second variable at it)
 
 import { createServerClient } from "@supabase/ssr";
@@ -15,8 +15,8 @@ import { ApiError } from "@/lib/api/errors";
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
   return createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll: () => cookieStore.getAll(),

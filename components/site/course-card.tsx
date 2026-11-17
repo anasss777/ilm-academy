@@ -20,7 +20,7 @@ export async function CourseCard({
   const title = localized(locale, course.titleAr, course.titleEn);
   const summary = localized(locale, course.shortDescAr, course.shortDescEn);
   const cover = coverImageUrl(
-    process.env.SUPABASE_URL ?? "",
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
     course.coverImagePath,
   );
   const href = `/courses/${encodeURIComponent(course.slug)}`;
