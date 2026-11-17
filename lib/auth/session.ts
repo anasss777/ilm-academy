@@ -4,7 +4,7 @@
 // Uses supabase.auth.getUser(), which validates the token with Supabase on every call.
 // (getSession() only reads the cookie and must not be trusted for authorization.)
 // Requires: npm i @supabase/ssr @supabase/supabase-js
-// Env: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
+// Env: SUPABASE_URL and SUPABASE_ANON_KEY
 //      (if your project uses the newer "publishable key", point the second variable at it)
 
 import { createServerClient } from "@supabase/ssr";
@@ -15,14 +15,15 @@ import { ApiError } from "@/lib/api/errors";
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll: () => cookieStore.getAll(),
         setAll: (list) => {
           try {
-            for (const { name, value, options } of list) cookieStore.set(name, value, options);
+            for (const { name, value, options } of list)
+              cookieStore.set(name, value, options);
           } catch {
             // Called from a Server Component: cookies are read-only there. Safe to ignore.
           }
@@ -61,7 +62,8 @@ export async function requireUser(): Promise<SessionUser> {
     },
   });
   if (!user) throw new ApiError(403, "PROFILE_NOT_FOUND");
-  if (user.deletedAt || user.status !== "ACTIVE") throw new ApiError(403, "ACCOUNT_DISABLED");
+  if (user.deletedAt || user.status !== "ACTIVE")
+    throw new ApiError(403, "ACCOUNT_DISABLED");
 
   const { status: _status, deletedAt: _deletedAt, ...session } = user;
   return session;
@@ -76,7 +78,8 @@ export async function getOptionalUser(): Promise<SessionUser | null> {
   try {
     return await requireUser();
   } catch (e) {
-    if (e instanceof ApiError && (e.status === 401 || e.status === 403)) return null;
+    if (e instanceof ApiError && (e.status === 401 || e.status === 403))
+      return null;
     throw e;
   }
 }

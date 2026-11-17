@@ -28,7 +28,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   try {
-    const c = await getCourseOverviewBySlug(db, { slug: decode(slug), viewerId: null });
+    const c = await getCourseOverviewBySlug(db, {
+      slug: decode(slug),
+      viewerId: null,
+    });
     return {
       title: localized(locale, c.titleAr, c.titleEn),
       description: localized(locale, c.shortDescAr, c.shortDescEn) || undefined,
@@ -56,7 +59,8 @@ export default async function CoursePage({
   });
 
   const t = await getTranslations("course");
-  const pick = (ar: string | null, en: string | null) => localized(locale, ar, en);
+  const pick = (ar: string | null, en: string | null) =>
+    localized(locale, ar, en);
 
   const title = pick(course.titleAr, course.titleEn);
   const summary = pick(course.shortDescAr, course.shortDescEn);
@@ -65,7 +69,10 @@ export default async function CoursePage({
   const prerequisites = pick(course.prerequisitesAr, course.prerequisitesEn);
   const format = pick(course.formatAr, course.formatEn);
   const frequency = pick(course.lectureFrequencyAr, course.lectureFrequencyEn);
-  const cover = coverImageUrl(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "", course.coverImagePath);
+  const cover = coverImageUrl(
+    process.env.SUPABASE_URL ?? "",
+    course.coverImagePath,
+  );
 
   // The student's own time zone when signed in, otherwise the lecture's
   const next = course.nextLecture;
@@ -73,9 +80,16 @@ export default async function CoursePage({
 
   const cert = course.certificate;
   const requirements = [
-    cert?.minAttendancePercent != null && t("reqAttendance", { value: formatPercent(cert.minAttendancePercent, locale) }),
-    cert?.minQuestionScorePercent != null && t("reqQuestions", { value: formatPercent(cert.minQuestionScorePercent, locale) }),
-    cert?.minExamPercent != null && t("reqExam", { value: formatPercent(cert.minExamPercent, locale) }),
+    cert?.minAttendancePercent != null &&
+      t("reqAttendance", {
+        value: formatPercent(cert.minAttendancePercent, locale),
+      }),
+    cert?.minQuestionScorePercent != null &&
+      t("reqQuestions", {
+        value: formatPercent(cert.minQuestionScorePercent, locale),
+      }),
+    cert?.minExamPercent != null &&
+      t("reqExam", { value: formatPercent(cert.minExamPercent, locale) }),
   ].filter((line): line is string => typeof line === "string");
 
   const includes = [
@@ -92,7 +106,13 @@ export default async function CoursePage({
   } else if (!course.enrollmentOpen) {
     action = <p className="alert-warning">{t("enrollClosed")}</p>;
   } else {
-    action = <EnrollButton courseId={course.id} signedIn={course.viewer.signedIn} enrolled={false} />;
+    action = (
+      <EnrollButton
+        courseId={course.id}
+        signedIn={course.viewer.signedIn}
+        enrolled={false}
+      />
+    );
   }
 
   return (
@@ -108,7 +128,9 @@ export default async function CoursePage({
                   {t("certificate")}
                 </span>
               ) : null}
-              {course.status === "ARCHIVED" ? <span className="badge-muted">{t("archived")}</span> : null}
+              {course.status === "ARCHIVED" ? (
+                <span className="badge-muted">{t("archived")}</span>
+              ) : null}
             </div>
             <h1 className="title-page">{title}</h1>
             {summary ? <p className="lead">{summary}</p> : null}
@@ -131,22 +153,32 @@ export default async function CoursePage({
               ) : null}
             </ul>
             {course.instructors.length > 0 ? (
-              <p className="text-sm text-muted">{course.instructors.map((i) => i.fullName).join(" · ")}</p>
+              <p className="text-sm text-muted">
+                {course.instructors.map((i) => i.fullName).join(" · ")}
+              </p>
             ) : null}
           </div>
 
           <aside className="card-plain lg:sticky lg:top-24">
             {cover ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={cover} alt="" className="aspect-video w-full object-cover" />
+              <img
+                src={cover}
+                alt=""
+                className="aspect-video w-full object-cover"
+              />
             ) : (
-              <div className="cover-placeholder aspect-video">{title.slice(0, 1)}</div>
+              <div className="cover-placeholder aspect-video">
+                {title.slice(0, 1)}
+              </div>
             )}
             <div className="stack gap-4 p-5">
               {action}
               {includes.length > 0 ? (
                 <div className="stack gap-2">
-                  <p className="text-sm font-semibold text-ink">{t("includes")}</p>
+                  <p className="text-sm font-semibold text-ink">
+                    {t("includes")}
+                  </p>
                   <ul className="stack gap-2 text-sm text-muted">
                     {includes.map(([, label]) => (
                       <li key={label} className="flex items-center gap-2">
@@ -176,7 +208,10 @@ export default async function CoursePage({
               <h2 className="title-section">{t("objectives")}</h2>
               <ul className="grid gap-3 sm:grid-cols-2">
                 {course.objectives.map((o, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm leading-7">
+                  <li
+                    key={i}
+                    className="flex items-start gap-3 text-sm leading-7"
+                  >
                     <Check className="icon mt-1 text-primary" />
                     {pick(o.textAr, o.textEn)}
                   </li>
@@ -233,12 +268,19 @@ export default async function CoursePage({
             </h2>
             {next ? (
               <div className="stack gap-1">
-                <p className="text-sm font-semibold text-muted">{t("nextLecture")}</p>
-                <p className="title-card">
-                  {t("lectureNumber", { number: String(next.number) })}: {pick(next.titleAr, next.titleEn)}
+                <p className="text-sm font-semibold text-muted">
+                  {t("nextLecture")}
                 </p>
-                <p className="text-sm">{formatDateTime(next.startsAt, locale, tz)}</p>
-                {tz ? <p className="text-xs text-muted">{t("timezone", { tz })}</p> : null}
+                <p className="title-card">
+                  {t("lectureNumber", { number: String(next.number) })}:{" "}
+                  {pick(next.titleAr, next.titleEn)}
+                </p>
+                <p className="text-sm">
+                  {formatDateTime(next.startsAt, locale, tz)}
+                </p>
+                {tz ? (
+                  <p className="text-xs text-muted">{t("timezone", { tz })}</p>
+                ) : null}
               </div>
             ) : (
               <p className="text-sm text-muted">{t("noUpcoming")}</p>
@@ -255,7 +297,9 @@ export default async function CoursePage({
                     <div className="stack gap-1">
                       <p className="title-card">{i.fullName}</p>
                       {pick(i.bioAr, i.bioEn) ? (
-                        <p className="prose-block text-sm">{pick(i.bioAr, i.bioEn)}</p>
+                        <p className="prose-block text-sm">
+                          {pick(i.bioAr, i.bioEn)}
+                        </p>
                       ) : null}
                     </div>
                   </div>
@@ -270,8 +314,12 @@ export default async function CoursePage({
               <div className="stack gap-2">
                 {course.faqs.map((f, i) => (
                   <details key={i} className="faq-item">
-                    <summary className="faq-q">{pick(f.questionAr, f.questionEn)}</summary>
-                    <p className="prose-block px-4 pb-4 text-sm">{pick(f.answerAr, f.answerEn)}</p>
+                    <summary className="faq-q">
+                      {pick(f.questionAr, f.questionEn)}
+                    </summary>
+                    <p className="prose-block px-4 pb-4 text-sm">
+                      {pick(f.answerAr, f.answerEn)}
+                    </p>
                   </details>
                 ))}
               </div>

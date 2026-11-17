@@ -17,7 +17,11 @@ export default async function AdminCourseDetailsPage({
 }: {
   params: Promise<{ locale: string; courseId: string }>;
 }) {
-  const { locale, courseId, perms } = await adminCourseContext(params, "", "course.edit");
+  const { locale, courseId, perms } = await adminCourseContext(
+    params,
+    "",
+    "course.edit",
+  );
   setRequestLocale(locale);
   const ta = await getTranslations("admin.audit");
 
@@ -27,7 +31,10 @@ export default async function AdminCourseDetailsPage({
       settings: true,
       objectives: { orderBy: { position: "asc" } },
       faqs: { orderBy: { position: "asc" } },
-      instructors: { orderBy: { displayOrder: "asc" }, select: { user: { select: { fullName: true, email: true } } } },
+      instructors: {
+        orderBy: { displayOrder: "asc" },
+        select: { user: { select: { fullName: true, email: true } } },
+      },
       _count: { select: { enrollments: { where: { status: "ACTIVE" } } } },
     },
   });
@@ -36,7 +43,16 @@ export default async function AdminCourseDetailsPage({
   const materials = await db.material.findMany({
     where: { courseId, lectureId: null, deletedAt: null },
     orderBy: { position: "asc" },
-    select: { id: true, titleAr: true, titleEn: true, type: true, storagePath: true, externalUrl: true, status: true, visibility: true },
+    select: {
+      id: true,
+      titleAr: true,
+      titleEn: true,
+      type: true,
+      storagePath: true,
+      externalUrl: true,
+      status: true,
+      visibility: true,
+    },
   });
 
   const s = (v: string | null) => v ?? "";
@@ -70,7 +86,10 @@ export default async function AdminCourseDetailsPage({
     <div className="stack gap-6">
       {perms.has("audit.view") ? (
         <div>
-          <Link href={`/admin/audit?entityType=Course&entityId=${courseId}`} className="link text-sm">
+          <Link
+            href={`/admin/audit?entityType=Course&entityId=${courseId}`}
+            className="link text-sm"
+          >
             {ta("history")}
           </Link>
         </div>
@@ -85,9 +104,20 @@ export default async function AdminCourseDetailsPage({
         canArchive={perms.has("course.archive")}
       />
 
-      <CourseForm mode="edit" courseId={courseId} initial={values} slugLocked={course.status !== "DRAFT"} />
+      <CourseForm
+        mode="edit"
+        courseId={courseId}
+        initial={values}
+        slugLocked={course.status !== "DRAFT"}
+      />
 
-      <CoverUploader courseId={courseId} coverUrl={coverImageUrl(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "", course.coverImagePath)} />
+      <CoverUploader
+        courseId={courseId}
+        coverUrl={coverImageUrl(
+          process.env.SUPABASE_URL ?? "",
+          course.coverImagePath,
+        )}
+      />
 
       <CourseSettingsForm
         courseId={courseId}
@@ -95,8 +125,11 @@ export default async function AdminCourseDetailsPage({
           partialWeight: String(Number(settings?.partialWeight ?? 1)),
           allowLateSubmissions: settings?.allowLateSubmissions ?? true,
           defaultPenaltyType: settings?.defaultPenaltyType ?? "NONE",
-          defaultPenaltyValue: String(Number(settings?.defaultPenaltyValue ?? 0)),
-          answerRevealMode: settings?.answerRevealMode ?? "AFTER_GRADE_AND_DEADLINE",
+          defaultPenaltyValue: String(
+            Number(settings?.defaultPenaltyValue ?? 0),
+          ),
+          answerRevealMode:
+            settings?.answerRevealMode ?? "AFTER_GRADE_AND_DEADLINE",
           recordingsVisibility: settings?.recordingsVisibility ?? "PUBLIC",
           materialsVisibility: settings?.materialsVisibility ?? "PUBLIC",
         }}
@@ -104,14 +137,25 @@ export default async function AdminCourseDetailsPage({
 
       <CourseContentForm
         courseId={courseId}
-        initialObjectives={course.objectives.map((o) => ({ textAr: o.textAr, textEn: s(o.textEn) }))}
-        initialFaqs={course.faqs.map((f) => ({ questionAr: f.questionAr, questionEn: s(f.questionEn), answerAr: f.answerAr, answerEn: s(f.answerEn) }))}
+        initialObjectives={course.objectives.map((o) => ({
+          textAr: o.textAr,
+          textEn: s(o.textEn),
+        }))}
+        initialFaqs={course.faqs.map((f) => ({
+          questionAr: f.questionAr,
+          questionEn: s(f.questionEn),
+          answerAr: f.answerAr,
+          answerEn: s(f.answerEn),
+        }))}
       />
 
       <CourseTeamSection
         courseId={courseId}
         perms={perms}
-        publicInstructors={course.instructors.map((i) => ({ fullName: i.user.fullName, email: i.user.email }))}
+        publicInstructors={course.instructors.map((i) => ({
+          fullName: i.user.fullName,
+          email: i.user.email,
+        }))}
       />
 
       {perms.has("material.manage") ? (
