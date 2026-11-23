@@ -16,7 +16,7 @@ export const KNOWN_AUDIT_ACTIONS = [
   "lecture.create", "lecture.update", "lecture.delete",
   "recording.create", "recording.update", "recording.delete",
   "material.create", "material.update", "material.delete",
-  "attendance.save",
+  "attendance.save", "attendance.import",
   "question.create", "question.update", "question.delete",
   "submission.grade", "submission.release", "submission.excuse", "submission.excuse.revoke",
   "submission.reopen", "submission.extend",

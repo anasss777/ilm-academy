@@ -16,7 +16,11 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma/client";
 import { publishCertificateRequirement } from "@/lib/eligibility/loader";
 import { saveAttendance } from "@/lib/staff/attendance";
-import { createCourse, replaceCourseContent, transitionCourse } from "@/lib/staff/courses";
+import {
+  createCourse,
+  replaceCourseContent,
+  transitionCourse,
+} from "@/lib/staff/courses";
 import { createExam, updateExam } from "@/lib/staff/exams";
 import { createLecture } from "@/lib/staff/lectures";
 import { createQuestion } from "@/lib/staff/questions";
@@ -34,13 +38,18 @@ async function findUser(email: string) {
   const user = await prisma.user.findFirst({
     where: { email: { equals: email, mode: "insensitive" }, deletedAt: null },
   });
-  if (!user) throw new Error(`No account with email ${email}. Register it on the site first.`);
+  if (!user)
+    throw new Error(
+      `No account with email ${email}. Register it on the site first.`,
+    );
   return user;
 }
 
 async function removeDemo(courseId: string) {
   const inCourse = { courseId };
-  await prisma.examAnswer.deleteMany({ where: { attempt: { exam: inCourse } } });
+  await prisma.examAnswer.deleteMany({
+    where: { attempt: { exam: inCourse } },
+  });
   await prisma.examAttempt.deleteMany({ where: { exam: inCourse } });
   await prisma.examAttemptGrant.deleteMany({ where: { exam: inCourse } });
   await prisma.deadlineExtension.deleteMany({ where: { question: inCourse } });
@@ -57,17 +66,26 @@ async function removeDemo(courseId: string) {
 }
 
 async function main() {
-  const instructorEmail = process.env.DEMO_INSTRUCTOR_EMAIL;
-  if (!instructorEmail) throw new Error("Set DEMO_INSTRUCTOR_EMAIL to the email of a registered account");
+  const instructorEmail = "anass2000271@gmail.com";
+  if (!instructorEmail)
+    throw new Error(
+      "Set DEMO_INSTRUCTOR_EMAIL to the email of a registered account",
+    );
   const instructor = await findUser(instructorEmail);
-  const existing = await prisma.course.findFirst({ where: { slug: SLUG }, select: { id: true } });
+  const existing = await prisma.course.findFirst({
+    where: { slug: SLUG },
+    select: { id: true },
+  });
 
   if (process.argv.includes("--remove")) {
     if (!existing) return console.log("No demo course to remove.");
     await removeDemo(existing.id);
     return console.log("Demo course and everything attached to it removed.");
   }
-  if (existing) return console.log(`The demo course already exists: /ar/courses/${SLUG} (use --remove to delete it first)`);
+  if (existing)
+    return console.log(
+      `The demo course already exists: /ar/courses/${SLUG} (use --remove to delete it first)`,
+    );
 
   const actorId = instructor.id;
   const course = await createCourse(prisma, {
@@ -76,8 +94,10 @@ async function main() {
       slug: SLUG,
       titleAr: "دورة تجريبية: مدخل إلى التعلّم المنظّم",
       titleEn: "Demo course: An introduction to structured learning",
-      shortDescAr: "دورة تجريبية تُظهر شكل صفحة الدورة: الجدول والأهداف والشهادة والأسئلة الشائعة.",
-      shortDescEn: "A demo course that shows what a course page looks like: schedule, objectives, certificate and FAQ.",
+      shortDescAr:
+        "دورة تجريبية تُظهر شكل صفحة الدورة: الجدول والأهداف والشهادة والأسئلة الشائعة.",
+      shortDescEn:
+        "A demo course that shows what a course page looks like: schedule, objectives, certificate and FAQ.",
       descriptionAr:
         "هذه دورة تجريبية أُنشئت لمعاينة الصفحات.\nتتضمن محاضرات مباشرة عبر Zoom، وتسجيلات لكل محاضرة، وأسئلة بعد كل محاضرة، وامتحانًا نهائيًا، وشهادة للمستحقين.\nيمكنك حذفها في أي وقت.",
       descriptionEn:
@@ -103,14 +123,39 @@ async function main() {
     actorId,
     input: {
       objectives: [
-        { textAr: "فهم كيفية سير الدورة من التسجيل حتى الشهادة", textEn: "Understand how a course runs, from enrollment to certificate" },
-        { textAr: "متابعة الحضور والدرجات في لوحة واحدة", textEn: "Follow your attendance and grades in one place" },
-        { textAr: "الإجابة عن أسئلة المحاضرات والاطّلاع على التغذية الراجعة", textEn: "Answer lecture questions and read the feedback" },
-        { textAr: "الرجوع إلى تسجيلات المحاضرات في أي وقت", textEn: "Return to lecture recordings at any time" },
+        {
+          textAr: "فهم كيفية سير الدورة من التسجيل حتى الشهادة",
+          textEn:
+            "Understand how a course runs, from enrollment to certificate",
+        },
+        {
+          textAr: "متابعة الحضور والدرجات في لوحة واحدة",
+          textEn: "Follow your attendance and grades in one place",
+        },
+        {
+          textAr: "الإجابة عن أسئلة المحاضرات والاطّلاع على التغذية الراجعة",
+          textEn: "Answer lecture questions and read the feedback",
+        },
+        {
+          textAr: "الرجوع إلى تسجيلات المحاضرات في أي وقت",
+          textEn: "Return to lecture recordings at any time",
+        },
       ],
       faqs: [
-        { questionAr: "هل الدورة مجانية؟", questionEn: "Is the course free?", answerAr: "نعم، التسجيل مجاني.", answerEn: "Yes, enrollment is free." },
-        { questionAr: "كيف أحصل على الشهادة؟", questionEn: "How do I get the certificate?", answerAr: "تُصدر الشهادة من جهة خارجية لمن يحقق شروط الحضور والأسئلة المذكورة في صفحة الدورة.", answerEn: "An external organization issues it to students who meet the attendance and question requirements shown on the course page." },
+        {
+          questionAr: "هل الدورة مجانية؟",
+          questionEn: "Is the course free?",
+          answerAr: "نعم، التسجيل مجاني.",
+          answerEn: "Yes, enrollment is free.",
+        },
+        {
+          questionAr: "كيف أحصل على الشهادة؟",
+          questionEn: "How do I get the certificate?",
+          answerAr:
+            "تُصدر الشهادة من جهة خارجية لمن يحقق شروط الحضور والأسئلة المذكورة في صفحة الدورة.",
+          answerEn:
+            "An external organization issues it to students who meet the attendance and question requirements shown on the course page.",
+        },
       ],
     },
   });
@@ -118,7 +163,11 @@ async function main() {
   await publishCertificateRequirement(prisma, {
     courseId: course.id,
     actorId,
-    thresholds: { minAttendancePercent: 80, minQuestionScorePercent: 60, minExamPercent: 50 },
+    thresholds: {
+      minAttendancePercent: 80,
+      minQuestionScorePercent: 60,
+      minExamPercent: 50,
+    },
   });
 
   // Two lectures already held, three upcoming
@@ -191,7 +240,13 @@ async function main() {
   const exam = await createExam(prisma, {
     courseId: course.id,
     actorId,
-    input: { titleAr: "الامتحان النهائي التجريبي", titleEn: "Demo final exam", descriptionAr: "امتحان قصير لمعاينة تجربة الامتحان.", descriptionEn: "A short exam to preview the exam experience.", passingPercent: 50 },
+    input: {
+      titleAr: "الامتحان النهائي التجريبي",
+      titleEn: "Demo final exam",
+      descriptionAr: "امتحان قصير لمعاينة تجربة الامتحان.",
+      descriptionEn: "A short exam to preview the exam experience.",
+      passingPercent: 50,
+    },
   });
   await createQuestion(prisma, {
     parent: { kind: "exam", examId: exam.id },
@@ -210,20 +265,49 @@ async function main() {
   await createQuestion(prisma, {
     parent: { kind: "exam", examId: exam.id },
     actorId,
-    input: { type: "OPEN", body: "اشرح بكلماتك كيف تستفيد من تسجيلات المحاضرات.", points: 10, status: "PUBLISHED" },
+    input: {
+      type: "OPEN",
+      body: "اشرح بكلماتك كيف تستفيد من تسجيلات المحاضرات.",
+      points: 10,
+      status: "PUBLISHED",
+    },
   });
-  await updateExam(prisma, { examId: exam.id, actorId, input: { status: "PUBLISHED" } });
+  await updateExam(prisma, {
+    examId: exam.id,
+    actorId,
+    input: { status: "PUBLISHED" },
+  });
 
-  await transitionCourse(prisma, { courseId: course.id, action: "publish", actorId });
+  await transitionCourse(prisma, {
+    courseId: course.id,
+    action: "publish",
+    actorId,
+  });
 
   // A student with some attendance recorded
-  const student = await findUser(process.env.DEMO_STUDENT_EMAIL ?? instructorEmail);
-  await staffEnrollStudent(prisma, { courseId: course.id, email: student.email, actorId });
-  await saveAttendance(prisma, { lectureId: lectureIds[0], actorId, entries: [{ userId: student.id, status: "PRESENT" }] });
-  await saveAttendance(prisma, { lectureId: lectureIds[1], actorId, entries: [{ userId: student.id, status: "PARTIAL", minutesAttended: 70 }] });
+  const student = await findUser(
+    process.env.DEMO_STUDENT_EMAIL ?? instructorEmail,
+  );
+  await staffEnrollStudent(prisma, {
+    courseId: course.id,
+    email: student.email,
+    actorId,
+  });
+  await saveAttendance(prisma, {
+    lectureId: lectureIds[0],
+    actorId,
+    entries: [{ userId: student.id, status: "PRESENT" }],
+  });
+  await saveAttendance(prisma, {
+    lectureId: lectureIds[1],
+    actorId,
+    entries: [{ userId: student.id, status: "PARTIAL", minutesAttended: 70 }],
+  });
 
   console.log(`Demo course ready: /ar/courses/${SLUG}`);
-  console.log(`${student.email} is enrolled: /ar/my-courses  (attendance recorded for lectures 1 and 2)`);
+  console.log(
+    `${student.email} is enrolled: /ar/my-courses  (attendance recorded for lectures 1 and 2)`,
+  );
 }
 
 main()

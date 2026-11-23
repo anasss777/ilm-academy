@@ -34,17 +34,38 @@ export type CourseValues = {
 };
 
 export const NEW_COURSE_VALUES: CourseValues = {
-  slug: "", titleAr: "", titleEn: "", shortDescAr: "", shortDescEn: "", descriptionAr: "", descriptionEn: "",
-  language: "ar", formatAr: "", formatEn: "", lectureFrequencyAr: "", lectureFrequencyEn: "",
-  targetAudienceAr: "", targetAudienceEn: "", prerequisitesAr: "", prerequisitesEn: "",
-  enrollmentOpen: true, attendanceEnabled: true, questionsEnabled: true, examEnabled: false,
-  certificateEnabled: false, recordingsEnabled: true,
+  slug: "",
+  titleAr: "",
+  titleEn: "",
+  shortDescAr: "",
+  shortDescEn: "",
+  descriptionAr: "",
+  descriptionEn: "",
+  language: "ar",
+  formatAr: "",
+  formatEn: "",
+  lectureFrequencyAr: "",
+  lectureFrequencyEn: "",
+  targetAudienceAr: "",
+  targetAudienceEn: "",
+  prerequisitesAr: "",
+  prerequisitesEn: "",
+  enrollmentOpen: true,
+  attendanceEnabled: true,
+  questionsEnabled: true,
+  examEnabled: false,
+  certificateEnabled: false,
+  recordingsEnabled: true,
 };
 
 const REQUIRED = new Set(["slug", "titleAr", "language"]);
 
 /** Create: every filled-in field. Edit: only what changed (and never the locked slug). */
-function buildBody(v: CourseValues, base: CourseValues | null, slugLocked: boolean) {
+function buildBody(
+  v: CourseValues,
+  base: CourseValues | null,
+  slugLocked: boolean,
+) {
   const body: Record<string, string | boolean> = {};
   for (const key of Object.keys(v) as (keyof CourseValues)[]) {
     if (key === "slug" && slugLocked) continue;
@@ -97,7 +118,11 @@ export function CourseForm({
     }
   }
 
-  const text = (key: keyof CourseValues, label: string, extra: { hint?: string; dir?: "ltr" | "auto"; disabled?: boolean } = {}) => (
+  const text = (
+    key: keyof CourseValues,
+    label: string,
+    extra: { hint?: string; dir?: "ltr" | "auto"; disabled?: boolean } = {},
+  ) => (
     <TextField
       id={`c-${key}`}
       label={label}
@@ -108,7 +133,12 @@ export function CourseForm({
       onChange={(e) => set(key, e.target.value as CourseValues[typeof key])}
     />
   );
-  const area = (key: keyof CourseValues, label: string, rows = 4, hint?: string) => (
+  const area = (
+    key: keyof CourseValues,
+    label: string,
+    rows = 4,
+    hint?: string,
+  ) => (
     <TextAreaField
       id={`c-${key}`}
       label={label}
@@ -131,12 +161,19 @@ export function CourseForm({
     <form onSubmit={onSubmit} className="stack gap-6" noValidate>
       <section className="card stack gap-4">
         <h2 className="title-card">{t("basics")}</h2>
-        {text("slug", t("slug"), { hint: slugLocked ? t("slugLocked") : t("slugHint"), dir: "ltr", disabled: slugLocked })}
+        {text("slug", t("slug"), {
+          hint: slugLocked ? t("slugLocked") : t("slugHint"),
+          dir: "ltr",
+          disabled: slugLocked,
+        })}
         <div className="form-grid">
           {text("titleAr", t("titleAr"))}
           {text("titleEn", t("titleEn"))}
         </div>
-        {text("language", t("language"), { hint: t("languageHint"), dir: "ltr" })}
+        {text("language", t("language"), {
+          hint: t("languageHint"),
+          dir: "ltr",
+        })}
       </section>
 
       <section className="card stack gap-4">
@@ -186,11 +223,16 @@ export function CourseForm({
         <SavedNote saved={saved && mode === "edit"} />
         <div>
           <button type="submit" className="btn-primary btn-lg" disabled={busy}>
-            {mode === "create" ? (busy ? tc("creating") : t("create")) : busy ? tc("saving") : tc("save")}
+            {mode === "create"
+              ? busy
+                ? tc("creating")
+                : t("create")
+              : busy
+                ? tc("saving")
+                : tc("save")}
           </button>
         </div>
       </div>
     </form>
   );
 }
-

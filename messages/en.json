@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Ilm Academy"
+    "appName": "Manhal Academy"
   },
   "home": {
     "badge": "Live and free courses",
@@ -125,7 +125,7 @@
   "footer": {
     "tagline": "Live online courses with attendance and progress tracking.",
     "browse": "Browse courses",
-    "copyright": "© {year} Ilm Academy. All rights reserved."
+    "copyright": "© {year} Manhal Academy. All rights reserved."
   },
   "catalog": {
     "title": "Courses",
@@ -457,7 +457,8 @@
     "ROLE_IN_USE": "A role that members hold cannot be deleted. Revoke it from them first.",
     "ROLE_KEY_TAKEN": "That identifier is used by another role.",
     "INVALID_ROLE_KEY": "The identifier is not valid: lowercase letters, numbers and hyphens (3 to 30), and not a built-in role name.",
-    "INVALID_PERMISSIONS": "The permission list is not valid."
+    "INVALID_PERMISSIONS": "The permission list is not valid.",
+    "INVALID_CSV": "The file could not be read. Make sure it is a UTF-8 CSV with an email or name column (and a duration or status column)."
   },
   "admin": {
     "common": {
@@ -1164,7 +1165,8 @@
         "role_create": "Created a role",
         "role_update": "Edited a role",
         "role_delete": "Deleted a role",
-        "audit_export": "Downloaded the audit log"
+        "audit_export": "Downloaded the audit log",
+        "attendance_import": "Imported attendance from a file"
       }
     },
     "reports": {
@@ -1240,6 +1242,49 @@
         "lastExport": "Last export: {date}",
         "noExports": "No exports yet."
       }
+    },
+    "attendanceImport": {
+      "title": "Import attendance from a file",
+      "intro": "Upload a Zoom participants report (CSV), or any file with an email or name plus the time spent or a status. You see the matching result first, and nothing is saved until you confirm.",
+      "fileLabel": "CSV file",
+      "fileHint": "UTF-8, up to 1 MB. In Zoom: Reports → Usage → pick the meeting → Export.",
+      "tooLarge": "The file is larger than 1 MB.",
+      "template": "Download a template",
+      "lectureLength": "Lecture length: {minutes} minutes.",
+      "presentAt": "Present if they stayed at least (% of the lecture)",
+      "partialAt": "Partial if they stayed at least (%)",
+      "belowAbsent": "Anything less is recorded as absent.",
+      "absentMissing": "Mark students who are not in the file as absent",
+      "absentMissingHint": "Not recommended: a student may have joined with a different email. Better to review them by hand.",
+      "overwriteManual": "Replace records entered by hand",
+      "overwriteHint": "By default the records you entered by hand are kept as they are.",
+      "preview": "Preview",
+      "previewing": "Analysing…",
+      "applying": "Importing…",
+      "apply": "Confirm and import {count} record(s)",
+      "done": "Imported {count} record(s).",
+      "stale": "You changed the file or the options after previewing. Preview again before importing.",
+      "summary": "Preview result",
+      "rowsRead": "{count} row(s) read",
+      "colEmail": "email",
+      "colName": "name",
+      "colMinutes": "duration",
+      "colStatus": "status",
+      "invalidRows": "{count} row(s) could not be understood and will be ignored:",
+      "skippedManual": "{count} record(s) entered by hand will not be replaced (turn the option on above to replace them).",
+      "noRows": "Nothing would be recorded with these settings.",
+      "student": "Student",
+      "minutes": "Minutes",
+      "minutesShort": "min",
+      "matchedByName": "Matched by name: please check",
+      "notInFileBadge": "Not in the file",
+      "replaces": "was: {status}",
+      "showingFirst": "Showing the first {count} of {total}.",
+      "unmatched": "{count} person(s) in the file matched no student",
+      "unmatchedHint": "No enrolled student has this email or name. They may be a teacher, a guest, or someone who joined with a different email. Record them by hand in the table after importing.",
+      "ambiguous": "Name shared by several students",
+      "notFound": "Not found",
+      "notInFile": "{count} enrolled student(s) are not in the file"
     }
   },
   "notifications": {

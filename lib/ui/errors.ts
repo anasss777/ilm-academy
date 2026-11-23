@@ -59,6 +59,8 @@ export const KNOWN_API_ERRORS = [
   "ROLE_KEY_TAKEN",
   "INVALID_ROLE_KEY",
   "INVALID_PERMISSIONS",
+  // attendance import
+  "INVALID_CSV",
 ] as const;
 
 export function apiErrorKey(code: string): string {

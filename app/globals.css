@@ -207,6 +207,14 @@
   }
 }
 
+.rtl {
+  direction: rtl !important;
+}
+
+.ltr {
+  direction: ltr !important;
+}
+
 /* ------------------------------------------------------------------------------
    4. COMPONENTS
    Logical properties (ps/pe/ms/me/start/end) are used throughout so Arabic (RTL)

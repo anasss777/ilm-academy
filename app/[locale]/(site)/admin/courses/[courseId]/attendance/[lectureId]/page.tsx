@@ -9,6 +9,7 @@ import { GradingError } from "@/lib/grading/grading";
 import { listRoster } from "@/lib/staff/attendance";
 import { adminCourseContext } from "@/lib/ui/admin-context";
 import { Pagination } from "@/components/site/pagination";
+import { AttendanceImport } from "@/components/admin/attendance-import";
 import { AttendanceSheet } from "@/components/admin/attendance-sheet";
 
 const PAGE_SIZE = 200;
@@ -28,6 +29,7 @@ export default async function AdminAttendanceSheetPage({
   const t = await getTranslations("admin.attendance");
   const tc = await getTranslations("admin.common");
   const tl = await getTranslations("admin.lectures");
+  const ti = await getTranslations("admin.attendanceImport");
 
   const q = (sp.q ?? "").trim().slice(0, 100) || undefined;
   const page = Math.min(10_000, Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1));
@@ -51,6 +53,18 @@ export default async function AdminAttendanceSheetPage({
         <p className="text-sm text-muted">{formatDateTime(roster.lecture.startsAt, locale, user.timezone)}</p>
       </div>
 
+      {perms.has("attendance.import") ? (
+        <details className="card">
+          <summary className="cursor-pointer text-base font-semibold text-ink">{ti("title")}</summary>
+          <div className="mt-4">
+            <AttendanceImport
+              lectureId={lectureId}
+              lectureMinutes={Math.max(1, Math.round((roster.lecture.endsAt.getTime() - roster.lecture.startsAt.getTime()) / 60_000))}
+            />
+          </div>
+        </details>
+      ) : null}
+
       <form method="get" className="toolbar">
         <div className="min-w-56 flex-1">
           <label htmlFor="q" className="label">{tc("search")}</label>
@@ -66,7 +80,7 @@ export default async function AdminAttendanceSheetPage({
       ) : (
         // key: a new search or page must start with a fresh sheet, not the previous one's edits
         <AttendanceSheet
-          key={`${q ?? ""}-${page}`}
+          key={`${q ?? ""}-${page}-${roster.items.map((r) => r.status ?? "-").join(",")}`}
           lectureId={lectureId}
           canEdit={perms.has("attendance.edit")}
           rows={roster.items.map((r) => ({ userId: r.userId, fullName: r.fullName, email: r.email, status: r.status }))}
