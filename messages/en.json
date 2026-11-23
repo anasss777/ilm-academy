@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Manhal Academy"
+    "appName": "Menhal"
   },
   "home": {
     "badge": "Live and free courses",
@@ -125,7 +125,7 @@
   "footer": {
     "tagline": "Live online courses with attendance and progress tracking.",
     "browse": "Browse courses",
-    "copyright": "© {year} Manhal Academy. All rights reserved."
+    "copyright": "© {year} Menhal. All rights reserved."
   },
   "catalog": {
     "title": "Courses",

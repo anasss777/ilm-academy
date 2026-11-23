@@ -4,7 +4,11 @@ import { requirePageUser } from "@/lib/auth/page";
 import { requirePagePermission } from "@/lib/auth/page-permissions";
 import { CourseForm } from "@/components/admin/course-form";
 
-export default async function NewCoursePage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function NewCoursePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   setRequestLocale(locale);
   const user = await requirePageUser(locale, "/admin/courses/new");

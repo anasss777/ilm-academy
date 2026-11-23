@@ -15,16 +15,26 @@ const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
  */
 function assertSameOrigin(req: NextRequest) {
   if (SAFE_METHODS.has(req.method)) return;
+
   const origin = req.headers.get("origin");
   if (!origin) return;
-  const allowed = new Set([req.nextUrl.origin, process.env.APP_ORIGIN].filter(Boolean));
-  if (!allowed.has(origin)) throw new ApiError(403, "BAD_ORIGIN");
+
+  const allowedOrigins = ["https://menhal.org", process.env.APP_ORIGIN].filter(
+    (value): value is string => Boolean(value),
+  );
+
+  if (!allowedOrigins.includes(origin)) {
+    throw new ApiError(403, "BAD_ORIGIN");
+  }
 }
 
 export function route<P extends Record<string, string> = Record<string, never>>(
   fn: (req: NextRequest, ctx: { params: P }) => Promise<Response>,
 ) {
-  return async (req: NextRequest, ctx: { params: Promise<P> }): Promise<Response> => {
+  return async (
+    req: NextRequest,
+    ctx: { params: Promise<P> },
+  ): Promise<Response> => {
     try {
       assertSameOrigin(req);
       return await fn(req, { params: await ctx.params });
@@ -34,7 +44,10 @@ export function route<P extends Record<string, string> = Record<string, never>>(
   };
 }
 
-export async function parseJson<S extends ZodType>(req: NextRequest, schema: S): Promise<z.infer<S>> {
+export async function parseJson<S extends ZodType>(
+  req: NextRequest,
+  schema: S,
+): Promise<z.infer<S>> {
   let raw: unknown;
   try {
     raw = await req.json();
@@ -55,6 +68,9 @@ export const json = (data: unknown, status = 200, headers?: HeadersInit) =>
   Response.json(data, { status, headers });
 
 /** Validate ?query=string parameters (all values arrive as strings, so use z.coerce). */
-export function parseQuery<S extends ZodType>(req: NextRequest, schema: S): z.infer<S> {
+export function parseQuery<S extends ZodType>(
+  req: NextRequest,
+  schema: S,
+): z.infer<S> {
   return schema.parse(Object.fromEntries(req.nextUrl.searchParams));
 }

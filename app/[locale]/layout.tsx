@@ -56,7 +56,7 @@ export default async function LocaleLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
-      <body className={`${font.variable} min-h-dvh font-sans antialiased`}>
+      <body className={`${font.variable} min-h-dvh font-tajawal antialiased`}>
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>

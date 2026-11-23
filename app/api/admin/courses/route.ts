@@ -10,5 +10,9 @@ export const POST = route(async (req) => {
   const user = await requireUser();
   await requirePermission(user, "course.create"); // organization-wide permission
   const input = await parseJson(req, createCourseSchema);
-  return json(await createCourse(db, { input, actorId: user.id }), 201, PRIVATE);
+  return json(
+    await createCourse(db, { input, actorId: user.id }),
+    201,
+    PRIVATE,
+  );
 });

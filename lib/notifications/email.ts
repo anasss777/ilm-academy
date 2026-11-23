@@ -4,7 +4,7 @@
 // notifications stay in-app only.
 //
 //   RESEND_API_KEY   an API key from your Resend account
-//   EMAIL_FROM       a sender on a domain you verified there, e.g.  Ilm Academy <noreply@yourdomain.com>
+//   EMAIL_FROM       a sender on a domain you verified there, e.g.  Menhal <noreply@yourdomain.com>
 
 export const isEmailConfigured = () =>
   Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);

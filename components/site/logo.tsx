@@ -10,7 +10,7 @@ export function Logo() {
           className="font-aref-ruqaa bg-linear-to-r from-[#A67C00] via-[#FFF3A3] to-[#A67C00] bg-clip-text text-transparent"
           aria-hidden
         >
-          عِلْمٌ
+          مِنْهَالٌ
         </span>
       </span>
       <span className="text-lg font-bold text-ink">{t("appName")}</span>
