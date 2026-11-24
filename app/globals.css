@@ -120,13 +120,15 @@
    ------------------------------------------------------------------------------ */
 @theme inline {
   /* Fonts */
+  --font-sans: "Tajawal", sans-serif;
+
   --font-marhey: "Marhey", sans-serif;
   --font-noto-kufi-arabic: "Noto Kufi Arabic", sans-serif;
   --font-aref-ruqaa: "Aref Ruqaa", sans-serif;
   --font-tajawal: "Tajawal", sans-serif;
   --font-imperial-script: "Imperial Script", sans-serif;
 
-  --font-sans: var(--font-plex), ui-sans-serif, system-ui, sans-serif;
+  /* --font-sans: var(--font-plex), ui-sans-serif, system-ui, sans-serif; */
 
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
