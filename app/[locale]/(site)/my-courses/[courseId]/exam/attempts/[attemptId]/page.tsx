@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { db } from "@/lib/db";
 import { parseUuid } from "@/lib/auth/params";
 import { formatDateTime, formatNumber, formatPercent } from "@/lib/format";
+import { finalizeAttemptIfExpired } from "@/lib/exams/service";
 import { getAttemptForStudent } from "@/lib/read/service";
 import { toDraft } from "@/lib/ui/exam-draft";
 import { courseContext } from "@/lib/ui/context";
@@ -25,7 +26,13 @@ export default async function AttemptPage({
   const dash = await orLeave(loadDashboard(user.id, courseId), locale);
   if (!dash.examId) notFound();
 
-  const view = await orLeave(getAttemptForStudent(db, { userId: user.id, attemptId }), locale);
+  const load = () => orLeave(getAttemptForStudent(db, { userId: user.id, attemptId }), locale);
+  let view = await load();
+  // The time ran out while the student was away: submit the saved answers and show the outcome instead
+  if (view.mode === "IN_PROGRESS" && view.overdue) {
+    await finalizeAttemptIfExpired(db, { attemptId });
+    view = await load();
+  }
   // The attempt must belong to this course's exam
   if (view.attempt.examId !== dash.examId) notFound();
 
@@ -53,6 +60,9 @@ export default async function AttemptPage({
           initialDraft={toDraft(view.answers)}
           dueText={view.dueAt ? formatDateTime(view.dueAt, locale, user.timezone) : null}
           expired={view.expired}
+          endsAtIso={view.endsAt ? view.endsAt.toISOString() : null}
+          serverNowIso={view.serverNow.toISOString()}
+          timeLimitMinutes={view.timeLimitMinutes}
         />
       </div>
     );

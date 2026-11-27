@@ -514,6 +514,7 @@ model Exam {
   titleEn        String?
   descriptionAr  String?
   descriptionEn  String?
+  durationMinutes Int?
   opensAt        DateTime?     @db.Timestamptz(6)
   dueAt          DateTime?     @db.Timestamptz(6)
   // Pass mark as a percentage of total question points (separate from the certificate threshold)
@@ -669,6 +670,7 @@ model ExamAttempt {
   attemptNumber Int               @default(1)
   status        ExamAttemptStatus @default(IN_PROGRESS)
   startedAt     DateTime          @default(now()) @db.Timestamptz(6)
+  expiresAt     DateTime?         @db.Timestamptz(6)
   submittedAt   DateTime?         @db.Timestamptz(6)
   gradedAt      DateTime?         @db.Timestamptz(6)
   releasedAt    DateTime?         @db.Timestamptz(6)
@@ -681,6 +683,7 @@ model ExamAttempt {
 
   @@unique([examId, userId, attemptNumber])
   @@index([examId, status])
+  @@index([status, expiresAt])
   @@map("exam_attempts")
 }
 

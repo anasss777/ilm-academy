@@ -19,9 +19,11 @@ function assertSameOrigin(req: NextRequest) {
   const origin = req.headers.get("origin");
   if (!origin) return;
 
-  const allowedOrigins = ["https://menhal.org", process.env.APP_ORIGIN].filter(
-    (value): value is string => Boolean(value),
-  );
+  const allowedOrigins = [
+    "http://localhost:3000",
+    "https://menhal.org",
+    process.env.APP_ORIGIN,
+  ].filter((value): value is string => Boolean(value));
 
   if (!allowedOrigins.includes(origin)) {
     throw new ApiError(403, "BAD_ORIGIN");

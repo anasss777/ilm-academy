@@ -3,7 +3,8 @@
 //
 //  1. Re-sync certificate reviews. Reviews update when something CHANGES, but time passing
 //     (a lecture ending) changes every student's attendance denominator without any event.
-//  2. Submit exam attempts left in progress after their deadline, using their saved answers.
+//  2. Submit exam attempts left in progress after their time ran out (their own time limit or the
+//     exam deadline), using their saved answers.
 //  3. Delete old rate-limit counters.
 //
 // One course failing never stops the others.
@@ -39,7 +40,8 @@ export async function runMaintenance(db: PrismaClient, now: Date = new Date()) {
     where: {
       status: "PUBLISHED",
       deletedAt: null,
-      dueAt: { not: null },
+      // attempts can now also run out on their own time limit, even when the exam has no deadline
+      attempts: { some: { status: "IN_PROGRESS" } },
       course: { status: { in: ["PUBLISHED", "ARCHIVED"] } },
     },
     select: { id: true },

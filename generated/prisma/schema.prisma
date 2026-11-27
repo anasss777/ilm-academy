@@ -508,21 +508,22 @@ model AttendanceRecord {
 // ----------------------------------------------------------------------------
 
 model Exam {
-  id             String        @id @default(uuid()) @db.Uuid
-  courseId       String        @db.Uuid
-  titleAr        String
-  titleEn        String?
-  descriptionAr  String?
-  descriptionEn  String?
-  opensAt        DateTime?     @db.Timestamptz(6)
-  dueAt          DateTime?     @db.Timestamptz(6)
+  id              String        @id @default(uuid()) @db.Uuid
+  courseId        String        @db.Uuid
+  titleAr         String
+  titleEn         String?
+  descriptionAr   String?
+  descriptionEn   String?
+  durationMinutes Int?
+  opensAt         DateTime?     @db.Timestamptz(6)
+  dueAt           DateTime?     @db.Timestamptz(6)
   // Pass mark as a percentage of total question points (separate from the certificate threshold)
-  passingPercent Decimal       @default(50) @db.Decimal(5, 2)
-  attemptLimit   Int           @default(1)
-  status         PublishStatus @default(DRAFT)
-  createdAt      DateTime      @default(now()) @db.Timestamptz(6)
-  updatedAt      DateTime      @updatedAt @db.Timestamptz(6)
-  deletedAt      DateTime?     @db.Timestamptz(6)
+  passingPercent  Decimal       @default(50) @db.Decimal(5, 2)
+  attemptLimit    Int           @default(1)
+  status          PublishStatus @default(DRAFT)
+  createdAt       DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime      @updatedAt @db.Timestamptz(6)
+  deletedAt       DateTime?     @db.Timestamptz(6)
 
   course    Course             @relation(fields: [courseId], references: [id])
   questions Question[]
@@ -669,6 +670,7 @@ model ExamAttempt {
   attemptNumber Int               @default(1)
   status        ExamAttemptStatus @default(IN_PROGRESS)
   startedAt     DateTime          @default(now()) @db.Timestamptz(6)
+  expiresAt     DateTime?         @db.Timestamptz(6)
   submittedAt   DateTime?         @db.Timestamptz(6)
   gradedAt      DateTime?         @db.Timestamptz(6)
   releasedAt    DateTime?         @db.Timestamptz(6)
@@ -681,6 +683,7 @@ model ExamAttempt {
 
   @@unique([examId, userId, attemptNumber])
   @@index([examId, status])
+  @@index([status, expiresAt])
   @@map("exam_attempts")
 }
 

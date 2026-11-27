@@ -234,6 +234,8 @@ export const createExamSchema = z
     dueAt: z.coerce.date().nullish(),
     passingPercent: z.number().min(0).max(100).optional(),
     attemptLimit: z.number().int().min(1).max(10).optional(),
+    /** Minutes per attempt, counted from the moment the student starts; empty = no limit */
+    durationMinutes: z.number().int().min(1).max(600).nullish(),
   })
   .strict()
   .refine((v) => !v.opensAt || !v.dueAt || v.dueAt.getTime() > v.opensAt.getTime(), {
@@ -250,6 +252,7 @@ export const updateExamSchema = z
     dueAt: z.coerce.date().nullish(),
     passingPercent: z.number().min(0).max(100),
     attemptLimit: z.number().int().min(1).max(10),
+    durationMinutes: z.number().int().min(1).max(600).nullable(),
     status: publishStatus,
   })
   .partial()

@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Imperial+Script&family=Marhey:wght@300..700&family=Noto+Kufi+Arabic:wght@100..900&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap");
 @import "tailwindcss";
 
 /* `dark:` utilities follow the same <html data-theme="dark"> switch as the palette below */
@@ -33,6 +32,7 @@
      Misc         icon  avatar  skeleton  empty-state  faq-item  faq-q  pager
    ============================================================================== */
 
+
 /* ------------------------------------------------------------------------------
    1. PALETTE: the only place colors are written as values
    Teal is the brand color; warm amber is its complement (accent).
@@ -43,10 +43,10 @@
   /* Brand: teal */
   --primary: #0f766e;
   --primary-hover: #115e59;
-  --primary-soft: #ccfbf1; /* light fills: selected tab, soft button, badge */
-  --primary-tint: #f0fdfa; /* very light wash: hero background */
-  --primary-ink: #134e4a; /* text that sits on --primary-soft */
-  --on-primary: #ffffff; /* text that sits on --primary */
+  --primary-soft: #ccfbf1;      /* light fills: selected tab, soft button, badge */
+  --primary-tint: #f0fdfa;      /* very light wash: hero background */
+  --primary-ink: #134e4a;       /* text that sits on --primary-soft */
+  --on-primary: #ffffff;        /* text that sits on --primary */
 
   /* Accent: amber */
   --accent: #d97706;
@@ -55,27 +55,18 @@
   --accent-ink: #78350f;
 
   /* Surfaces and text (slightly teal-tinted neutrals) */
-  --canvas: #f3f8f7; /* page background */
-  --surface: #ffffff; /* cards, header, inputs */
-  --surface-alt: #e8f1f0; /* hover fills, footer, skeleton */
-  --ink: #10211f; /* main text */
-  --muted: #55706d; /* secondary text */
-  --line: #d3e2e0; /* borders and dividers */
+  --canvas: #f3f8f7;            /* page background */
+  --surface: #ffffff;           /* cards, header, inputs */
+  --surface-alt: #e8f1f0;       /* hover fills, footer, skeleton */
+  --ink: #10211f;               /* main text */
+  --muted: #55706d;             /* secondary text */
+  --line: #d3e2e0;              /* borders and dividers */
 
   /* Status */
-  --success: #15803d;
-  --success-soft: #dcfce7;
-  --success-ink: #14532d;
-  --warning: #b45309;
-  --warning-soft: #fef3c7;
-  --warning-ink: #78350f;
-  --danger: #dc2626;
-  --danger-hover: #b91c1c;
-  --danger-soft: #fee2e2;
-  --danger-ink: #7f1d1d;
-  --info: #2563eb;
-  --info-soft: #dbeafe;
-  --info-ink: #1e3a8a;
+  --success: #15803d;  --success-soft: #dcfce7;  --success-ink: #14532d;
+  --warning: #b45309;  --warning-soft: #fef3c7;  --warning-ink: #78350f;
+  --danger: #dc2626;   --danger-hover: #b91c1c;  --danger-soft: #fee2e2;  --danger-ink: #7f1d1d;
+  --info: #2563eb;     --info-soft: #dbeafe;     --info-ink: #1e3a8a;
 }
 
 :root[data-theme="dark"] {
@@ -98,19 +89,10 @@
   --muted: #93aaa7;
   --line: #223a38;
 
-  --success: #4ade80;
-  --success-soft: #0f2e1a;
-  --success-ink: #bbf7d0;
-  --warning: #fbbf24;
-  --warning-soft: #33250a;
-  --warning-ink: #fde68a;
-  --danger: #f87171;
-  --danger-hover: #fca5a5;
-  --danger-soft: #3b1313;
-  --danger-ink: #fecaca;
-  --info: #60a5fa;
-  --info-soft: #14284a;
-  --info-ink: #bfdbfe;
+  --success: #4ade80;  --success-soft: #0f2e1a;  --success-ink: #bbf7d0;
+  --warning: #fbbf24;  --warning-soft: #33250a;   --warning-ink: #fde68a;
+  --danger: #f87171;   --danger-hover: #fca5a5;   --danger-soft: #3b1313;  --danger-ink: #fecaca;
+  --info: #60a5fa;     --info-soft: #14284a;      --info-ink: #bfdbfe;
 }
 
 /* ------------------------------------------------------------------------------
@@ -119,16 +101,7 @@
       `inline` keeps them linked to the variables so dark mode switches live.
    ------------------------------------------------------------------------------ */
 @theme inline {
-  /* Fonts */
-  --font-sans: "Tajawal", sans-serif;
-
-  --font-marhey: "Marhey", sans-serif;
-  --font-noto-kufi-arabic: "Noto Kufi Arabic", sans-serif;
-  --font-aref-ruqaa: "Aref Ruqaa", sans-serif;
-  --font-tajawal: "Tajawal", sans-serif;
-  --font-imperial-script: "Imperial Script", sans-serif;
-
-  /* --font-sans: var(--font-plex), ui-sans-serif, system-ui, sans-serif; */
+  --font-sans: var(--font-plex), ui-sans-serif, system-ui, sans-serif;
 
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
@@ -166,15 +139,14 @@
 
 @theme {
   /* Shape: change these two to make the whole site sharper or rounder */
-  --radius-control: 0.75rem; /* buttons, inputs, badges' containers */
-  --radius-card: 1.25rem; /* cards, panels */
+  --radius-control: 0.75rem;    /* buttons, inputs, badges' containers */
+  --radius-card: 1.25rem;       /* cards, panels */
 
   /* Shadows */
-  --shadow-card:
-    0 1px 2px rgb(16 33 31 / 0.04), 0 8px 24px rgb(16 33 31 / 0.06);
-  --shadow-pop:
-    0 4px 12px rgb(16 33 31 / 0.08), 0 16px 40px rgb(16 33 31 / 0.12);
+  --shadow-card: 0 1px 2px rgb(16 33 31 / 0.04), 0 8px 24px rgb(16 33 31 / 0.06);
+  --shadow-pop: 0 4px 12px rgb(16 33 31 / 0.08), 0 16px 40px rgb(16 33 31 / 0.12);
 }
+
 
 /* ------------------------------------------------------------------------------
    3. BASE
@@ -209,13 +181,6 @@
   }
 }
 
-.rtl {
-  direction: rtl !important;
-}
-
-.ltr {
-  direction: ltr !important;
-}
 
 /* ------------------------------------------------------------------------------
    4. COMPONENTS
@@ -423,7 +388,7 @@
   @apply mt-16 border-t border-line bg-surface-alt py-10 text-sm text-muted;
 }
 @utility logo-mark {
-  @apply grid size-9 shrink-0 place-items-center rounded-control bg-green-900 text-lg font-bold text-on-primary;
+  @apply grid size-9 shrink-0 place-items-center rounded-control bg-primary text-lg font-bold text-on-primary;
 }
 @utility hero {
   @apply border-b border-line bg-linear-to-b from-primary-tint to-canvas;
@@ -493,6 +458,14 @@
   @apply text-sm text-muted;
 }
 
+/* ---- Exam timer ---- */
+@utility timer-warn {
+  color: var(--warning);
+}
+@utility timer-danger {
+  color: var(--danger);
+}
+
 /* ---- Reports ---- */
 @utility seg-bar {
   @apply flex h-3 w-full overflow-hidden rounded-full bg-surface-alt;
@@ -554,12 +527,7 @@
 }
 @utility skeleton {
   border-radius: var(--radius-control);
-  background: linear-gradient(
-    110deg,
-    var(--surface-alt) 8%,
-    var(--line) 18%,
-    var(--surface-alt) 33%
-  );
+  background: linear-gradient(110deg, var(--surface-alt) 8%, var(--line) 18%, var(--surface-alt) 33%);
   background-size: 200% 100%;
   animation: shine 1.5s linear infinite;
 }

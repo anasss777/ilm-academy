@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { db } from "@/lib/db";
 import { formatDateTime, formatNumber, formatPercent } from "@/lib/format";
 import { localized } from "@/lib/i18n-content";
+import { finalizeOverdueForUser } from "@/lib/exams/service";
 import { getExamForStudent } from "@/lib/read/service";
 import { courseContext } from "@/lib/ui/context";
 import { loadDashboard, orLeave } from "@/lib/ui/data";
@@ -19,6 +20,8 @@ export default async function ExamPage({
   if (!dash.examId) notFound();
 
   const t = await getTranslations("exam");
+  // An attempt whose time ran out while the student was away is submitted before the page is built
+  await finalizeOverdueForUser(db, { examId: dash.examId, userId: user.id });
   const exam = await orLeave(getExamForStudent(db, { userId: user.id, examId: dash.examId }), locale);
   const description = localized(locale, exam.descriptionAr, exam.descriptionEn);
   const inProgress = exam.attempts.find((a) => a.status === "IN_PROGRESS");
@@ -33,7 +36,7 @@ export default async function ExamPage({
         </div>
         {description ? <p className="prose-block text-sm">{description}</p> : null}
 
-        <dl className="grid gap-4 text-sm sm:grid-cols-3">
+        <dl className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <dt className="text-muted">{t("maxScore")}</dt>
             <dd className="text-lg font-semibold">{formatNumber(exam.maxScore, locale)}</dd>
@@ -41,6 +44,12 @@ export default async function ExamPage({
           <div>
             <dt className="text-muted">{t("passMark")}</dt>
             <dd className="text-lg font-semibold">{formatPercent(exam.passingPercent, locale)}</dd>
+          </div>
+          <div>
+            <dt className="text-muted">{t("timeLimit")}</dt>
+            <dd className="text-lg font-semibold">
+              {exam.durationMinutes ? `${formatNumber(exam.durationMinutes, locale)} ${t("minutesShort")}` : t("noTimeLimit")}
+            </dd>
           </div>
           <div>
             <dt className="text-muted">{t("attempts")}</dt>
@@ -57,9 +66,10 @@ export default async function ExamPage({
         </div>
 
         <p className="text-sm text-muted">{t("intro")}</p>
+        {exam.durationMinutes ? <p className="alert-info">{t("timedNote", { minutes: String(exam.durationMinutes) })}</p> : null}
 
         {exam.canStart ? (
-          <ExamStartButton examId={exam.id} courseId={courseId} resume={!!inProgress} />
+          <ExamStartButton examId={exam.id} courseId={courseId} resume={!!inProgress} durationMinutes={exam.durationMinutes} />
         ) : inProgress ? (
           <div>
             <Link href={`${base}/exam/attempts/${inProgress.id}`} className="btn-outline">

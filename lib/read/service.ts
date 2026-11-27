@@ -8,7 +8,7 @@
 // ADJUST this import to your generator `output` path (same as the other files).
 import type { PrismaClient } from "@/generated/prisma/client";
 import { studentAttemptDto, studentSubmissionDto } from "../api/dto";
-import { allowedAttempts, effectiveExamDueAt } from "../exams/exam";
+import { allowedAttempts, attemptEndsAt, effectiveExamDueAt, isAttemptOver } from "../exams/exam";
 import {
   GradingError,
   effectiveDueAt,
@@ -588,6 +588,7 @@ export async function getExamForStudent(
     select: {
       id: true, courseId: true, titleAr: true, titleEn: true, descriptionAr: true,
       descriptionEn: true, opensAt: true, dueAt: true, attemptLimit: true, passingPercent: true,
+      durationMinutes: true,
       course: { select: { examEnabled: true } },
       questions: { where: { status: "PUBLISHED", deletedAt: null }, select: { points: true } },
     },
@@ -629,6 +630,8 @@ export async function getExamForStudent(
     dueAt: due,
     maxScore: exam.questions.reduce((s, q) => s + num(q.points), 0),
     passingPercent: num(exam.passingPercent),
+    /** Minutes allowed per attempt, counted from the moment the student starts (null = no limit) */
+    durationMinutes: exam.durationMinutes,
     attemptsAllowed: allowed,
     attemptsUsed: attempts.length,
     state: avail.state,
@@ -652,7 +655,7 @@ export async function getAttemptForStudent(
     where: { id: args.attemptId },
     select: {
       id: true, examId: true, userId: true, attemptNumber: true, status: true, startedAt: true,
-      submittedAt: true, totalScore: true, releasedAt: true,
+      submittedAt: true, totalScore: true, releasedAt: true, expiresAt: true,
       exam: {
         select: {
           courseId: true, dueAt: true, opensAt: true, attemptLimit: true, passingPercent: true,
@@ -683,6 +686,8 @@ export async function getAttemptForStudent(
     hasInProgress: mine.some((a) => a.status === "IN_PROGRESS"),
   });
   const base = studentAttemptDto(attempt);
+  // The attempt ends at the earlier of its own time limit and the student's exam deadline
+  const endsAt = attemptEndsAt(attempt.expiresAt, due);
 
   const questions = await db.question.findMany({
     where: { examId: attempt.examId, status: "PUBLISHED", deletedAt: null },
@@ -702,7 +707,16 @@ export async function getAttemptForStudent(
       mode: "IN_PROGRESS" as const,
       attempt: base,
       dueAt: due,
-      expired: avail.state === "CLOSED",
+      /** When this attempt must end, and the server's clock (so the browser can show an accurate countdown) */
+      endsAt,
+      serverNow: now,
+      timeLimitMinutes: attempt.expiresAt
+        ? Math.round((attempt.expiresAt.getTime() - attempt.startedAt.getTime()) / 60_000)
+        : null,
+      /** The time is up: the answers are read-only and the attempt is submitted automatically */
+      expired: endsAt != null && now.getTime() > endsAt.getTime(),
+      /** Past the grace period too: the attempt can be finalized now */
+      overdue: isAttemptOver({ now, end: endsAt }),
       questions: questions.map((q) => projectQuestionForStudent({ ...q, points: num(q.points) }, false)),
       answers: saved,
     };

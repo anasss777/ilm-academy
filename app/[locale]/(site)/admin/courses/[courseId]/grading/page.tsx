@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link, redirect } from "@/i18n/navigation";
 import { db } from "@/lib/db";
 import { formatDateTime } from "@/lib/format";
+import { finalizeExpiredAttempts } from "@/lib/exams/service";
 import { listExamAttempts, listSubmissionQueue } from "@/lib/staff/queues";
 import { adminCourseContext } from "@/lib/ui/admin-context";
 import { Pagination } from "@/components/site/pagination";
@@ -46,6 +47,8 @@ export default async function AdminGradingPage({
     canExam ? db.exam.findFirst({ where: { courseId, deletedAt: null }, select: { id: true } }) : Promise.resolve(null),
   ]);
 
+  // Attempts whose time ran out are submitted first, so they appear in the list to be graded
+  if (exam) await finalizeExpiredAttempts(db, { examId: exam.id });
   const attempts = exam ? await listExamAttempts(db, { examId: exam.id, status: "SUBMITTED", page: 1, pageSize: 50 }) : null;
 
   const filterLink = (value: Filter, label: string) => (

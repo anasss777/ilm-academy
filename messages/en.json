@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Menhal"
+    "appName": "Manhal Academy"
   },
   "home": {
     "badge": "Live and free courses",
@@ -125,7 +125,7 @@
   "footer": {
     "tagline": "Live online courses with attendance and progress tracking.",
     "browse": "Browse courses",
-    "copyright": "© {year} Menhal. All rights reserved."
+    "copyright": "© {year} Manhal Academy. All rights reserved."
   },
   "catalog": {
     "title": "Courses",
@@ -360,7 +360,20 @@
     "feedback": "Instructor feedback",
     "correctAnswer": "Correct answer",
     "explanation": "Explanation",
-    "backToExam": "Back to the exam"
+    "backToExam": "Back to the exam",
+    "timeLimit": "Time allowed",
+    "minutesShort": "min",
+    "noTimeLimit": "No time limit",
+    "timedNote": "Each attempt has {minutes} minutes, counted from the moment you press Start. The clock cannot be paused. If the exam closes sooner, you only have the time left until it closes. When time runs out, your saved answers are submitted automatically.",
+    "startConfirmTitle": "Before you start",
+    "startConfirmBody": "The timer starts now and you will have {minutes} minutes. The clock keeps running even if you close the page. Do you want to start?",
+    "startConfirmYes": "Start now",
+    "startConfirmNo": "Not now",
+    "timeLeft": "Time left",
+    "attemptLength": "Attempt length: {minutes} minutes",
+    "timeUp": "Time is up. Submitting your saved answers…",
+    "announceMinutes": "{minutes} minutes left",
+    "announceSeconds": "{seconds} seconds left"
   },
   "progress": {
     "title": "Your progress",
@@ -415,7 +428,7 @@
     "ALREADY_GRADED": "This answer has been graded and cannot be changed.",
     "NOT_ENROLLED": "You are not enrolled in this course.",
     "EXAM_NOT_OPEN": "The exam has not opened yet.",
-    "EXAM_CLOSED": "The exam has closed.",
+    "EXAM_CLOSED": "The exam time is over (or the time allowed for your attempt).",
     "NO_ATTEMPTS_LEFT": "You have used all your attempts.",
     "ATTEMPT_NOT_IN_PROGRESS": "This attempt is no longer in progress.",
     "ATTEMPT_CONFLICT": "Another attempt is being started. Reload the page.",
@@ -834,7 +847,9 @@
       "deleteButton": "Delete exam",
       "deleteConfirm": "Delete the exam? This is not possible once a student has started an attempt.",
       "points": "{points} points",
-      "answers": "{count} answer(s)"
+      "answers": "{count} answer(s)",
+      "durationMinutes": "Time per attempt (minutes)",
+      "durationHint": "Leave empty for no time limit. The clock starts when the student presses Start, and never runs past the exam's closing time. Changing the duration affects only attempts that start afterwards."
     },
     "grading": {
       "title": "Grading",
@@ -1300,5 +1315,12 @@
     "emailLabel": "Send important notifications to my email",
     "emailSaved": "Preference saved.",
     "emailFailed": "Could not save the preference."
+  },
+  "errorPage": {
+    "title": "Something went wrong",
+    "body": "We are sorry. Please try again, and if the problem continues, contact us.",
+    "retry": "Try again",
+    "home": "Back to the home page",
+    "reference": "Error reference: {digest}"
   }
 }

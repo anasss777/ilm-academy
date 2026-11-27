@@ -37,12 +37,20 @@ export function ExamAttemptForm({
   initialDraft,
   dueText,
   expired,
+  endsAtIso,
+  serverNowIso,
+  timeLimitMinutes,
 }: {
   attemptId: string;
   questions: ExamQuestionView[];
   initialDraft: Draft;
   dueText: string | null;
   expired: boolean;
+  /** When this attempt must end (its own time limit or the exam's closing time), or null */
+  endsAtIso: string | null;
+  /** The server's clock at render time, so the countdown does not depend on the device clock */
+  serverNowIso: string;
+  timeLimitMinutes: number | null;
 }) {
   const t = useTranslations("exam");
   const tq = useTranslations("question");
@@ -58,6 +66,16 @@ export function ExamAttemptForm({
   const [confirming, setConfirming] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const disabled = expired || submitting;
+
+  // ---- Countdown -----------------------------------------------------------------------
+  const endMs = endsAtIso ? new Date(endsAtIso).getTime() : null;
+  const offsetRef = useRef<number | null>(null); // server clock minus this device's clock
+  const [remaining, setRemaining] = useState<number | null>(null);
+  const [announcement, setAnnouncement] = useState("");
+  const [timeUp, setTimeUp] = useState(false);
+  const autoSubmitted = useRef(false);
+  const retries = useRef(0);
+  const submitRef = useRef<() => Promise<void>>(async () => {});
 
   useEffect(() => {
     draftRef.current = draft;
@@ -119,6 +137,48 @@ export function ExamAttemptForm({
     return () => window.removeEventListener("beforeunload", handler);
   }, [status]);
 
+  // Tick from the absolute end time (not by subtracting), so a throttled background tab stays right
+  useEffect(() => {
+    if (endMs == null) return;
+    if (offsetRef.current == null) offsetRef.current = new Date(serverNowIso).getTime() - Date.now();
+    const tick = () => {
+      const left = Math.max(0, Math.ceil((endMs - (Date.now() + (offsetRef.current ?? 0))) / 1000));
+      setRemaining(left);
+      if (left === 600 || left === 300 || left === 60) setAnnouncement(t("announceMinutes", { minutes: String(left / 60) }));
+      else if (left === 30) setAnnouncement(t("announceSeconds", { seconds: "30" }));
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", tick);
+    };
+  }, [endMs, serverNowIso, t]);
+
+  // When the time is up, submit what is saved (the server accepts it for a few seconds more)
+  useEffect(() => {
+    if (endMs == null || autoSubmitted.current || submitting) return;
+    if (!(expired || remaining === 0)) return;
+    autoSubmitted.current = true;
+    setTimeUp(true);
+    void submitRef.current();
+  }, [expired, remaining, endMs, submitting]);
+
+  // A failed automatic submit is retried a few times; otherwise reload so the server can finish it
+  useEffect(() => {
+    if (!timeUp || submitting || !errorCode) return;
+    if (errorCode === "EXAM_CLOSED" || retries.current >= 4) {
+      router.refresh();
+      return;
+    }
+    const id = setTimeout(() => {
+      retries.current += 1;
+      void submitRef.current();
+    }, 3000);
+    return () => clearTimeout(id);
+  }, [timeUp, submitting, errorCode, router]);
+
   function setAnswer(questionId: string, patch: Partial<DraftAnswer>) {
     setDraft((d) => ({ ...d, [questionId]: normalizeAnswer({ ...d[questionId], ...patch }) }));
   }
@@ -142,6 +202,17 @@ export function ExamAttemptForm({
     router.refresh(); // the page now shows "submitted" or the result
   }
 
+  useEffect(() => {
+    submitRef.current = onSubmit; // always the latest version, for the effects above
+  });
+
+  const clock = (sec: number) => {
+    const h = Math.floor(sec / 3600);
+    const m = String(Math.floor((sec % 3600) / 60)).padStart(2, "0");
+    const s = String(sec % 60).padStart(2, "0");
+    return h > 0 ? `${h}:${m}:${s}` : `${m}:${s}`;
+  };
+
   const unanswered = countUnanswered(
     questions.map((q) => q.id),
     draft,
@@ -151,6 +222,27 @@ export function ExamAttemptForm({
 
   return (
     <div className="stack gap-5">
+      {endMs != null ? (
+        <div
+          className="sticky top-2 z-10 flex items-center justify-between gap-3 rounded-card border border-line bg-surface p-3 shadow-card"
+          role="timer"
+          aria-label={t("timeLeft")}
+        >
+          <div className="stack gap-0.5">
+            <span className="text-sm text-muted">{t("timeLeft")}</span>
+            {timeLimitMinutes ? <span className="text-xs text-muted">{t("attemptLength", { minutes: String(timeLimitMinutes) })}</span> : null}
+          </div>
+          <span
+            dir="ltr"
+            className={`text-2xl font-bold tabular-nums ${remaining != null && remaining <= 60 ? "timer-danger" : remaining != null && remaining <= 300 ? "timer-warn" : "text-ink"}`}
+          >
+            {remaining == null ? "--:--" : clock(remaining)}
+          </span>
+        </div>
+      ) : null}
+      <p className="sr-only" aria-live="assertive">{announcement}</p>
+      {timeUp ? <p className="alert-warning">{t("timeUp")}</p> : null}
+
       <div className="panel stack gap-2">
         <p className="text-sm">{t("intro")}</p>
         {dueText ? <p className="text-sm font-semibold text-ink">{t("due", { date: dueText })}</p> : null}

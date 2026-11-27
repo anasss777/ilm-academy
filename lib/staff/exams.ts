@@ -10,13 +10,13 @@ import { audit, inTx, normalizeFields, safeSync } from "./common";
 
 const examSelect = {
   id: true, courseId: true, titleAr: true, titleEn: true, descriptionAr: true, descriptionEn: true,
-  opensAt: true, dueAt: true, passingPercent: true, attemptLimit: true, status: true,
+  opensAt: true, dueAt: true, passingPercent: true, attemptLimit: true, durationMinutes: true, status: true,
 };
 
 const toDto = (e: {
   id: string; courseId: string; titleAr: string; titleEn: string | null; descriptionAr: string | null;
   descriptionEn: string | null; opensAt: Date | null; dueAt: Date | null;
-  passingPercent: { toNumber(): number }; attemptLimit: number; status: string;
+  passingPercent: { toNumber(): number }; attemptLimit: number; durationMinutes: number | null; status: string;
 }) => ({ ...e, passingPercent: e.passingPercent.toNumber() });
 
 export async function createExam(
@@ -45,6 +45,7 @@ export async function createExam(
         dueAt: input.dueAt ?? null,
         ...(input.passingPercent !== undefined ? { passingPercent: input.passingPercent } : {}),
         ...(input.attemptLimit !== undefined ? { attemptLimit: input.attemptLimit } : {}),
+        ...(input.durationMinutes !== undefined ? { durationMinutes: input.durationMinutes } : {}),
         status: "DRAFT", // publish only after questions exist
       },
       select: examSelect,
@@ -59,7 +60,7 @@ export async function updateExam(
   args: { examId: string; input: UpdateExamInput; actorId: string },
 ) {
   const { examId, input, actorId } = args;
-  const { status, passingPercent, attemptLimit, opensAt, dueAt, ...text } = input;
+  const { status, passingPercent, attemptLimit, durationMinutes, opensAt, dueAt, ...text } = input;
 
   const { exam, courseId } = await inTx(db, async (tx) => {
     const existing = await tx.exam.findFirst({
@@ -87,6 +88,8 @@ export async function updateExam(
       ...(dueAt !== undefined ? { dueAt } : {}),
       ...(passingPercent !== undefined ? { passingPercent } : {}),
       ...(attemptLimit !== undefined ? { attemptLimit } : {}),
+      // changes apply to attempts started AFTER this; running attempts keep the end they were given
+      ...(durationMinutes !== undefined ? { durationMinutes } : {}),
       ...(status !== undefined ? { status } : {}),
     } as Prisma.ExamUncheckedUpdateInput;
 

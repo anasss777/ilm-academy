@@ -24235,11 +24235,13 @@ export namespace Prisma {
   }
 
   export type ExamAvgAggregateOutputType = {
+    durationMinutes: number | null
     passingPercent: Decimal | null
     attemptLimit: number | null
   }
 
   export type ExamSumAggregateOutputType = {
+    durationMinutes: number | null
     passingPercent: Decimal | null
     attemptLimit: number | null
   }
@@ -24251,6 +24253,7 @@ export namespace Prisma {
     titleEn: string | null
     descriptionAr: string | null
     descriptionEn: string | null
+    durationMinutes: number | null
     opensAt: Date | null
     dueAt: Date | null
     passingPercent: Decimal | null
@@ -24268,6 +24271,7 @@ export namespace Prisma {
     titleEn: string | null
     descriptionAr: string | null
     descriptionEn: string | null
+    durationMinutes: number | null
     opensAt: Date | null
     dueAt: Date | null
     passingPercent: Decimal | null
@@ -24285,6 +24289,7 @@ export namespace Prisma {
     titleEn: number
     descriptionAr: number
     descriptionEn: number
+    durationMinutes: number
     opensAt: number
     dueAt: number
     passingPercent: number
@@ -24298,11 +24303,13 @@ export namespace Prisma {
 
 
   export type ExamAvgAggregateInputType = {
+    durationMinutes?: true
     passingPercent?: true
     attemptLimit?: true
   }
 
   export type ExamSumAggregateInputType = {
+    durationMinutes?: true
     passingPercent?: true
     attemptLimit?: true
   }
@@ -24314,6 +24321,7 @@ export namespace Prisma {
     titleEn?: true
     descriptionAr?: true
     descriptionEn?: true
+    durationMinutes?: true
     opensAt?: true
     dueAt?: true
     passingPercent?: true
@@ -24331,6 +24339,7 @@ export namespace Prisma {
     titleEn?: true
     descriptionAr?: true
     descriptionEn?: true
+    durationMinutes?: true
     opensAt?: true
     dueAt?: true
     passingPercent?: true
@@ -24348,6 +24357,7 @@ export namespace Prisma {
     titleEn?: true
     descriptionAr?: true
     descriptionEn?: true
+    durationMinutes?: true
     opensAt?: true
     dueAt?: true
     passingPercent?: true
@@ -24452,6 +24462,7 @@ export namespace Prisma {
     titleEn: string | null
     descriptionAr: string | null
     descriptionEn: string | null
+    durationMinutes: number | null
     opensAt: Date | null
     dueAt: Date | null
     passingPercent: Decimal
@@ -24488,6 +24499,7 @@ export namespace Prisma {
     titleEn?: boolean
     descriptionAr?: boolean
     descriptionEn?: boolean
+    durationMinutes?: boolean
     opensAt?: boolean
     dueAt?: boolean
     passingPercent?: boolean
@@ -24510,6 +24522,7 @@ export namespace Prisma {
     titleEn?: boolean
     descriptionAr?: boolean
     descriptionEn?: boolean
+    durationMinutes?: boolean
     opensAt?: boolean
     dueAt?: boolean
     passingPercent?: boolean
@@ -24528,6 +24541,7 @@ export namespace Prisma {
     titleEn?: boolean
     descriptionAr?: boolean
     descriptionEn?: boolean
+    durationMinutes?: boolean
     opensAt?: boolean
     dueAt?: boolean
     passingPercent?: boolean
@@ -24546,6 +24560,7 @@ export namespace Prisma {
     titleEn?: boolean
     descriptionAr?: boolean
     descriptionEn?: boolean
+    durationMinutes?: boolean
     opensAt?: boolean
     dueAt?: boolean
     passingPercent?: boolean
@@ -24556,7 +24571,7 @@ export namespace Prisma {
     deletedAt?: boolean
   }
 
-  export type ExamOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "courseId" | "titleAr" | "titleEn" | "descriptionAr" | "descriptionEn" | "opensAt" | "dueAt" | "passingPercent" | "attemptLimit" | "status" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["exam"]>
+  export type ExamOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "courseId" | "titleAr" | "titleEn" | "descriptionAr" | "descriptionEn" | "durationMinutes" | "opensAt" | "dueAt" | "passingPercent" | "attemptLimit" | "status" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["exam"]>
   export type ExamInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     course?: boolean | CourseDefaultArgs<ExtArgs>
     questions?: boolean | Exam$questionsArgs<ExtArgs>
@@ -24586,6 +24601,7 @@ export namespace Prisma {
       titleEn: string | null
       descriptionAr: string | null
       descriptionEn: string | null
+      durationMinutes: number | null
       opensAt: Date | null
       dueAt: Date | null
       passingPercent: Prisma.Decimal
@@ -25027,6 +25043,7 @@ export namespace Prisma {
     readonly titleEn: FieldRef<"Exam", 'String'>
     readonly descriptionAr: FieldRef<"Exam", 'String'>
     readonly descriptionEn: FieldRef<"Exam", 'String'>
+    readonly durationMinutes: FieldRef<"Exam", 'Int'>
     readonly opensAt: FieldRef<"Exam", 'DateTime'>
     readonly dueAt: FieldRef<"Exam", 'DateTime'>
     readonly passingPercent: FieldRef<"Exam", 'Decimal'>
@@ -30616,6 +30633,7 @@ export namespace Prisma {
     attemptNumber: number | null
     status: $Enums.ExamAttemptStatus | null
     startedAt: Date | null
+    expiresAt: Date | null
     submittedAt: Date | null
     gradedAt: Date | null
     releasedAt: Date | null
@@ -30629,6 +30647,7 @@ export namespace Prisma {
     attemptNumber: number | null
     status: $Enums.ExamAttemptStatus | null
     startedAt: Date | null
+    expiresAt: Date | null
     submittedAt: Date | null
     gradedAt: Date | null
     releasedAt: Date | null
@@ -30642,6 +30661,7 @@ export namespace Prisma {
     attemptNumber: number
     status: number
     startedAt: number
+    expiresAt: number
     submittedAt: number
     gradedAt: number
     releasedAt: number
@@ -30667,6 +30687,7 @@ export namespace Prisma {
     attemptNumber?: true
     status?: true
     startedAt?: true
+    expiresAt?: true
     submittedAt?: true
     gradedAt?: true
     releasedAt?: true
@@ -30680,6 +30701,7 @@ export namespace Prisma {
     attemptNumber?: true
     status?: true
     startedAt?: true
+    expiresAt?: true
     submittedAt?: true
     gradedAt?: true
     releasedAt?: true
@@ -30693,6 +30715,7 @@ export namespace Prisma {
     attemptNumber?: true
     status?: true
     startedAt?: true
+    expiresAt?: true
     submittedAt?: true
     gradedAt?: true
     releasedAt?: true
@@ -30793,6 +30816,7 @@ export namespace Prisma {
     attemptNumber: number
     status: $Enums.ExamAttemptStatus
     startedAt: Date
+    expiresAt: Date | null
     submittedAt: Date | null
     gradedAt: Date | null
     releasedAt: Date | null
@@ -30825,6 +30849,7 @@ export namespace Prisma {
     attemptNumber?: boolean
     status?: boolean
     startedAt?: boolean
+    expiresAt?: boolean
     submittedAt?: boolean
     gradedAt?: boolean
     releasedAt?: boolean
@@ -30842,6 +30867,7 @@ export namespace Prisma {
     attemptNumber?: boolean
     status?: boolean
     startedAt?: boolean
+    expiresAt?: boolean
     submittedAt?: boolean
     gradedAt?: boolean
     releasedAt?: boolean
@@ -30857,6 +30883,7 @@ export namespace Prisma {
     attemptNumber?: boolean
     status?: boolean
     startedAt?: boolean
+    expiresAt?: boolean
     submittedAt?: boolean
     gradedAt?: boolean
     releasedAt?: boolean
@@ -30872,13 +30899,14 @@ export namespace Prisma {
     attemptNumber?: boolean
     status?: boolean
     startedAt?: boolean
+    expiresAt?: boolean
     submittedAt?: boolean
     gradedAt?: boolean
     releasedAt?: boolean
     totalScore?: boolean
   }
 
-  export type ExamAttemptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "examId" | "userId" | "attemptNumber" | "status" | "startedAt" | "submittedAt" | "gradedAt" | "releasedAt" | "totalScore", ExtArgs["result"]["examAttempt"]>
+  export type ExamAttemptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "examId" | "userId" | "attemptNumber" | "status" | "startedAt" | "expiresAt" | "submittedAt" | "gradedAt" | "releasedAt" | "totalScore", ExtArgs["result"]["examAttempt"]>
   export type ExamAttemptInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     exam?: boolean | ExamDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -30908,6 +30936,7 @@ export namespace Prisma {
       attemptNumber: number
       status: $Enums.ExamAttemptStatus
       startedAt: Date
+      expiresAt: Date | null
       submittedAt: Date | null
       gradedAt: Date | null
       releasedAt: Date | null
@@ -31344,6 +31373,7 @@ export namespace Prisma {
     readonly attemptNumber: FieldRef<"ExamAttempt", 'Int'>
     readonly status: FieldRef<"ExamAttempt", 'ExamAttemptStatus'>
     readonly startedAt: FieldRef<"ExamAttempt", 'DateTime'>
+    readonly expiresAt: FieldRef<"ExamAttempt", 'DateTime'>
     readonly submittedAt: FieldRef<"ExamAttempt", 'DateTime'>
     readonly gradedAt: FieldRef<"ExamAttempt", 'DateTime'>
     readonly releasedAt: FieldRef<"ExamAttempt", 'DateTime'>
@@ -42477,6 +42507,7 @@ export namespace Prisma {
     titleEn: 'titleEn',
     descriptionAr: 'descriptionAr',
     descriptionEn: 'descriptionEn',
+    durationMinutes: 'durationMinutes',
     opensAt: 'opensAt',
     dueAt: 'dueAt',
     passingPercent: 'passingPercent',
@@ -42569,6 +42600,7 @@ export namespace Prisma {
     attemptNumber: 'attemptNumber',
     status: 'status',
     startedAt: 'startedAt',
+    expiresAt: 'expiresAt',
     submittedAt: 'submittedAt',
     gradedAt: 'gradedAt',
     releasedAt: 'releasedAt',
@@ -44490,6 +44522,7 @@ export namespace Prisma {
     titleEn?: StringNullableFilter<"Exam"> | string | null
     descriptionAr?: StringNullableFilter<"Exam"> | string | null
     descriptionEn?: StringNullableFilter<"Exam"> | string | null
+    durationMinutes?: IntNullableFilter<"Exam"> | number | null
     opensAt?: DateTimeNullableFilter<"Exam"> | Date | string | null
     dueAt?: DateTimeNullableFilter<"Exam"> | Date | string | null
     passingPercent?: DecimalFilter<"Exam"> | Decimal | DecimalJsLike | number | string
@@ -44511,6 +44544,7 @@ export namespace Prisma {
     titleEn?: SortOrderInput | SortOrder
     descriptionAr?: SortOrderInput | SortOrder
     descriptionEn?: SortOrderInput | SortOrder
+    durationMinutes?: SortOrderInput | SortOrder
     opensAt?: SortOrderInput | SortOrder
     dueAt?: SortOrderInput | SortOrder
     passingPercent?: SortOrder
@@ -44535,6 +44569,7 @@ export namespace Prisma {
     titleEn?: StringNullableFilter<"Exam"> | string | null
     descriptionAr?: StringNullableFilter<"Exam"> | string | null
     descriptionEn?: StringNullableFilter<"Exam"> | string | null
+    durationMinutes?: IntNullableFilter<"Exam"> | number | null
     opensAt?: DateTimeNullableFilter<"Exam"> | Date | string | null
     dueAt?: DateTimeNullableFilter<"Exam"> | Date | string | null
     passingPercent?: DecimalFilter<"Exam"> | Decimal | DecimalJsLike | number | string
@@ -44556,6 +44591,7 @@ export namespace Prisma {
     titleEn?: SortOrderInput | SortOrder
     descriptionAr?: SortOrderInput | SortOrder
     descriptionEn?: SortOrderInput | SortOrder
+    durationMinutes?: SortOrderInput | SortOrder
     opensAt?: SortOrderInput | SortOrder
     dueAt?: SortOrderInput | SortOrder
     passingPercent?: SortOrder
@@ -44581,6 +44617,7 @@ export namespace Prisma {
     titleEn?: StringNullableWithAggregatesFilter<"Exam"> | string | null
     descriptionAr?: StringNullableWithAggregatesFilter<"Exam"> | string | null
     descriptionEn?: StringNullableWithAggregatesFilter<"Exam"> | string | null
+    durationMinutes?: IntNullableWithAggregatesFilter<"Exam"> | number | null
     opensAt?: DateTimeNullableWithAggregatesFilter<"Exam"> | Date | string | null
     dueAt?: DateTimeNullableWithAggregatesFilter<"Exam"> | Date | string | null
     passingPercent?: DecimalWithAggregatesFilter<"Exam"> | Decimal | DecimalJsLike | number | string
@@ -45011,6 +45048,7 @@ export namespace Prisma {
     attemptNumber?: IntFilter<"ExamAttempt"> | number
     status?: EnumExamAttemptStatusFilter<"ExamAttempt"> | $Enums.ExamAttemptStatus
     startedAt?: DateTimeFilter<"ExamAttempt"> | Date | string
+    expiresAt?: DateTimeNullableFilter<"ExamAttempt"> | Date | string | null
     submittedAt?: DateTimeNullableFilter<"ExamAttempt"> | Date | string | null
     gradedAt?: DateTimeNullableFilter<"ExamAttempt"> | Date | string | null
     releasedAt?: DateTimeNullableFilter<"ExamAttempt"> | Date | string | null
@@ -45027,6 +45065,7 @@ export namespace Prisma {
     attemptNumber?: SortOrder
     status?: SortOrder
     startedAt?: SortOrder
+    expiresAt?: SortOrderInput | SortOrder
     submittedAt?: SortOrderInput | SortOrder
     gradedAt?: SortOrderInput | SortOrder
     releasedAt?: SortOrderInput | SortOrder
@@ -45047,6 +45086,7 @@ export namespace Prisma {
     attemptNumber?: IntFilter<"ExamAttempt"> | number
     status?: EnumExamAttemptStatusFilter<"ExamAttempt"> | $Enums.ExamAttemptStatus
     startedAt?: DateTimeFilter<"ExamAttempt"> | Date | string
+    expiresAt?: DateTimeNullableFilter<"ExamAttempt"> | Date | string | null
     submittedAt?: DateTimeNullableFilter<"ExamAttempt"> | Date | string | null
     gradedAt?: DateTimeNullableFilter<"ExamAttempt"> | Date | string | null
     releasedAt?: DateTimeNullableFilter<"ExamAttempt"> | Date | string | null
@@ -45063,6 +45103,7 @@ export namespace Prisma {
     attemptNumber?: SortOrder
     status?: SortOrder
     startedAt?: SortOrder
+    expiresAt?: SortOrderInput | SortOrder
     submittedAt?: SortOrderInput | SortOrder
     gradedAt?: SortOrderInput | SortOrder
     releasedAt?: SortOrderInput | SortOrder
@@ -45084,6 +45125,7 @@ export namespace Prisma {
     attemptNumber?: IntWithAggregatesFilter<"ExamAttempt"> | number
     status?: EnumExamAttemptStatusWithAggregatesFilter<"ExamAttempt"> | $Enums.ExamAttemptStatus
     startedAt?: DateTimeWithAggregatesFilter<"ExamAttempt"> | Date | string
+    expiresAt?: DateTimeNullableWithAggregatesFilter<"ExamAttempt"> | Date | string | null
     submittedAt?: DateTimeNullableWithAggregatesFilter<"ExamAttempt"> | Date | string | null
     gradedAt?: DateTimeNullableWithAggregatesFilter<"ExamAttempt"> | Date | string | null
     releasedAt?: DateTimeNullableWithAggregatesFilter<"ExamAttempt"> | Date | string | null
@@ -47382,6 +47424,7 @@ export namespace Prisma {
     titleEn?: string | null
     descriptionAr?: string | null
     descriptionEn?: string | null
+    durationMinutes?: number | null
     opensAt?: Date | string | null
     dueAt?: Date | string | null
     passingPercent?: Decimal | DecimalJsLike | number | string
@@ -47403,6 +47446,7 @@ export namespace Prisma {
     titleEn?: string | null
     descriptionAr?: string | null
     descriptionEn?: string | null
+    durationMinutes?: number | null
     opensAt?: Date | string | null
     dueAt?: Date | string | null
     passingPercent?: Decimal | DecimalJsLike | number | string
@@ -47422,6 +47466,7 @@ export namespace Prisma {
     titleEn?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionEn?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     opensAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passingPercent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -47443,6 +47488,7 @@ export namespace Prisma {
     titleEn?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionEn?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     opensAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passingPercent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -47463,6 +47509,7 @@ export namespace Prisma {
     titleEn?: string | null
     descriptionAr?: string | null
     descriptionEn?: string | null
+    durationMinutes?: number | null
     opensAt?: Date | string | null
     dueAt?: Date | string | null
     passingPercent?: Decimal | DecimalJsLike | number | string
@@ -47479,6 +47526,7 @@ export namespace Prisma {
     titleEn?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionEn?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     opensAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passingPercent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -47496,6 +47544,7 @@ export namespace Prisma {
     titleEn?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionEn?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     opensAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passingPercent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -47943,6 +47992,7 @@ export namespace Prisma {
     attemptNumber?: number
     status?: $Enums.ExamAttemptStatus
     startedAt?: Date | string
+    expiresAt?: Date | string | null
     submittedAt?: Date | string | null
     gradedAt?: Date | string | null
     releasedAt?: Date | string | null
@@ -47959,6 +48009,7 @@ export namespace Prisma {
     attemptNumber?: number
     status?: $Enums.ExamAttemptStatus
     startedAt?: Date | string
+    expiresAt?: Date | string | null
     submittedAt?: Date | string | null
     gradedAt?: Date | string | null
     releasedAt?: Date | string | null
@@ -47971,6 +48022,7 @@ export namespace Prisma {
     attemptNumber?: IntFieldUpdateOperationsInput | number
     status?: EnumExamAttemptStatusFieldUpdateOperationsInput | $Enums.ExamAttemptStatus
     startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gradedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -47987,6 +48039,7 @@ export namespace Prisma {
     attemptNumber?: IntFieldUpdateOperationsInput | number
     status?: EnumExamAttemptStatusFieldUpdateOperationsInput | $Enums.ExamAttemptStatus
     startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gradedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -48001,6 +48054,7 @@ export namespace Prisma {
     attemptNumber?: number
     status?: $Enums.ExamAttemptStatus
     startedAt?: Date | string
+    expiresAt?: Date | string | null
     submittedAt?: Date | string | null
     gradedAt?: Date | string | null
     releasedAt?: Date | string | null
@@ -48012,6 +48066,7 @@ export namespace Prisma {
     attemptNumber?: IntFieldUpdateOperationsInput | number
     status?: EnumExamAttemptStatusFieldUpdateOperationsInput | $Enums.ExamAttemptStatus
     startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gradedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -48025,6 +48080,7 @@ export namespace Prisma {
     attemptNumber?: IntFieldUpdateOperationsInput | number
     status?: EnumExamAttemptStatusFieldUpdateOperationsInput | $Enums.ExamAttemptStatus
     startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gradedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50235,6 +50291,7 @@ export namespace Prisma {
     titleEn?: SortOrder
     descriptionAr?: SortOrder
     descriptionEn?: SortOrder
+    durationMinutes?: SortOrder
     opensAt?: SortOrder
     dueAt?: SortOrder
     passingPercent?: SortOrder
@@ -50246,6 +50303,7 @@ export namespace Prisma {
   }
 
   export type ExamAvgOrderByAggregateInput = {
+    durationMinutes?: SortOrder
     passingPercent?: SortOrder
     attemptLimit?: SortOrder
   }
@@ -50257,6 +50315,7 @@ export namespace Prisma {
     titleEn?: SortOrder
     descriptionAr?: SortOrder
     descriptionEn?: SortOrder
+    durationMinutes?: SortOrder
     opensAt?: SortOrder
     dueAt?: SortOrder
     passingPercent?: SortOrder
@@ -50274,6 +50333,7 @@ export namespace Prisma {
     titleEn?: SortOrder
     descriptionAr?: SortOrder
     descriptionEn?: SortOrder
+    durationMinutes?: SortOrder
     opensAt?: SortOrder
     dueAt?: SortOrder
     passingPercent?: SortOrder
@@ -50285,6 +50345,7 @@ export namespace Prisma {
   }
 
   export type ExamSumOrderByAggregateInput = {
+    durationMinutes?: SortOrder
     passingPercent?: SortOrder
     attemptLimit?: SortOrder
   }
@@ -50616,6 +50677,7 @@ export namespace Prisma {
     attemptNumber?: SortOrder
     status?: SortOrder
     startedAt?: SortOrder
+    expiresAt?: SortOrder
     submittedAt?: SortOrder
     gradedAt?: SortOrder
     releasedAt?: SortOrder
@@ -50634,6 +50696,7 @@ export namespace Prisma {
     attemptNumber?: SortOrder
     status?: SortOrder
     startedAt?: SortOrder
+    expiresAt?: SortOrder
     submittedAt?: SortOrder
     gradedAt?: SortOrder
     releasedAt?: SortOrder
@@ -50647,6 +50710,7 @@ export namespace Prisma {
     attemptNumber?: SortOrder
     status?: SortOrder
     startedAt?: SortOrder
+    expiresAt?: SortOrder
     submittedAt?: SortOrder
     gradedAt?: SortOrder
     releasedAt?: SortOrder
@@ -55829,6 +55893,7 @@ export namespace Prisma {
     attemptNumber?: number
     status?: $Enums.ExamAttemptStatus
     startedAt?: Date | string
+    expiresAt?: Date | string | null
     submittedAt?: Date | string | null
     gradedAt?: Date | string | null
     releasedAt?: Date | string | null
@@ -55843,6 +55908,7 @@ export namespace Prisma {
     attemptNumber?: number
     status?: $Enums.ExamAttemptStatus
     startedAt?: Date | string
+    expiresAt?: Date | string | null
     submittedAt?: Date | string | null
     gradedAt?: Date | string | null
     releasedAt?: Date | string | null
@@ -56510,6 +56576,7 @@ export namespace Prisma {
     attemptNumber?: IntFilter<"ExamAttempt"> | number
     status?: EnumExamAttemptStatusFilter<"ExamAttempt"> | $Enums.ExamAttemptStatus
     startedAt?: DateTimeFilter<"ExamAttempt"> | Date | string
+    expiresAt?: DateTimeNullableFilter<"ExamAttempt"> | Date | string | null
     submittedAt?: DateTimeNullableFilter<"ExamAttempt"> | Date | string | null
     gradedAt?: DateTimeNullableFilter<"ExamAttempt"> | Date | string | null
     releasedAt?: DateTimeNullableFilter<"ExamAttempt"> | Date | string | null
@@ -57981,6 +58048,7 @@ export namespace Prisma {
     titleEn?: string | null
     descriptionAr?: string | null
     descriptionEn?: string | null
+    durationMinutes?: number | null
     opensAt?: Date | string | null
     dueAt?: Date | string | null
     passingPercent?: Decimal | DecimalJsLike | number | string
@@ -58000,6 +58068,7 @@ export namespace Prisma {
     titleEn?: string | null
     descriptionAr?: string | null
     descriptionEn?: string | null
+    durationMinutes?: number | null
     opensAt?: Date | string | null
     dueAt?: Date | string | null
     passingPercent?: Decimal | DecimalJsLike | number | string
@@ -58463,6 +58532,7 @@ export namespace Prisma {
     titleEn?: StringNullableFilter<"Exam"> | string | null
     descriptionAr?: StringNullableFilter<"Exam"> | string | null
     descriptionEn?: StringNullableFilter<"Exam"> | string | null
+    durationMinutes?: IntNullableFilter<"Exam"> | number | null
     opensAt?: DateTimeNullableFilter<"Exam"> | Date | string | null
     dueAt?: DateTimeNullableFilter<"Exam"> | Date | string | null
     passingPercent?: DecimalFilter<"Exam"> | Decimal | DecimalJsLike | number | string
@@ -61630,6 +61700,7 @@ export namespace Prisma {
     attemptNumber?: number
     status?: $Enums.ExamAttemptStatus
     startedAt?: Date | string
+    expiresAt?: Date | string | null
     submittedAt?: Date | string | null
     gradedAt?: Date | string | null
     releasedAt?: Date | string | null
@@ -61644,6 +61715,7 @@ export namespace Prisma {
     attemptNumber?: number
     status?: $Enums.ExamAttemptStatus
     startedAt?: Date | string
+    expiresAt?: Date | string | null
     submittedAt?: Date | string | null
     gradedAt?: Date | string | null
     releasedAt?: Date | string | null
@@ -61992,6 +62064,7 @@ export namespace Prisma {
     titleEn?: string | null
     descriptionAr?: string | null
     descriptionEn?: string | null
+    durationMinutes?: number | null
     opensAt?: Date | string | null
     dueAt?: Date | string | null
     passingPercent?: Decimal | DecimalJsLike | number | string
@@ -62012,6 +62085,7 @@ export namespace Prisma {
     titleEn?: string | null
     descriptionAr?: string | null
     descriptionEn?: string | null
+    durationMinutes?: number | null
     opensAt?: Date | string | null
     dueAt?: Date | string | null
     passingPercent?: Decimal | DecimalJsLike | number | string
@@ -62348,6 +62422,7 @@ export namespace Prisma {
     titleEn?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionEn?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     opensAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passingPercent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -62368,6 +62443,7 @@ export namespace Prisma {
     titleEn?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionEn?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     opensAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passingPercent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -63885,6 +63961,7 @@ export namespace Prisma {
     titleEn?: string | null
     descriptionAr?: string | null
     descriptionEn?: string | null
+    durationMinutes?: number | null
     opensAt?: Date | string | null
     dueAt?: Date | string | null
     passingPercent?: Decimal | DecimalJsLike | number | string
@@ -63905,6 +63982,7 @@ export namespace Prisma {
     titleEn?: string | null
     descriptionAr?: string | null
     descriptionEn?: string | null
+    durationMinutes?: number | null
     opensAt?: Date | string | null
     dueAt?: Date | string | null
     passingPercent?: Decimal | DecimalJsLike | number | string
@@ -64064,6 +64142,7 @@ export namespace Prisma {
     titleEn?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionEn?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     opensAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passingPercent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -64084,6 +64163,7 @@ export namespace Prisma {
     titleEn?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionEn?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     opensAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passingPercent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -64214,6 +64294,7 @@ export namespace Prisma {
     attemptNumber?: number
     status?: $Enums.ExamAttemptStatus
     startedAt?: Date | string
+    expiresAt?: Date | string | null
     submittedAt?: Date | string | null
     gradedAt?: Date | string | null
     releasedAt?: Date | string | null
@@ -64229,6 +64310,7 @@ export namespace Prisma {
     attemptNumber?: number
     status?: $Enums.ExamAttemptStatus
     startedAt?: Date | string
+    expiresAt?: Date | string | null
     submittedAt?: Date | string | null
     gradedAt?: Date | string | null
     releasedAt?: Date | string | null
@@ -64419,6 +64501,7 @@ export namespace Prisma {
     attemptNumber?: IntFieldUpdateOperationsInput | number
     status?: EnumExamAttemptStatusFieldUpdateOperationsInput | $Enums.ExamAttemptStatus
     startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gradedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -64434,6 +64517,7 @@ export namespace Prisma {
     attemptNumber?: IntFieldUpdateOperationsInput | number
     status?: EnumExamAttemptStatusFieldUpdateOperationsInput | $Enums.ExamAttemptStatus
     startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gradedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -64627,6 +64711,7 @@ export namespace Prisma {
     titleEn?: string | null
     descriptionAr?: string | null
     descriptionEn?: string | null
+    durationMinutes?: number | null
     opensAt?: Date | string | null
     dueAt?: Date | string | null
     passingPercent?: Decimal | DecimalJsLike | number | string
@@ -64647,6 +64732,7 @@ export namespace Prisma {
     titleEn?: string | null
     descriptionAr?: string | null
     descriptionEn?: string | null
+    durationMinutes?: number | null
     opensAt?: Date | string | null
     dueAt?: Date | string | null
     passingPercent?: Decimal | DecimalJsLike | number | string
@@ -64863,6 +64949,7 @@ export namespace Prisma {
     titleEn?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionEn?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     opensAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passingPercent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -64883,6 +64970,7 @@ export namespace Prisma {
     titleEn?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionEn?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     opensAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passingPercent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -67570,6 +67658,7 @@ export namespace Prisma {
     attemptNumber?: number
     status?: $Enums.ExamAttemptStatus
     startedAt?: Date | string
+    expiresAt?: Date | string | null
     submittedAt?: Date | string | null
     gradedAt?: Date | string | null
     releasedAt?: Date | string | null
@@ -68123,6 +68212,7 @@ export namespace Prisma {
     attemptNumber?: IntFieldUpdateOperationsInput | number
     status?: EnumExamAttemptStatusFieldUpdateOperationsInput | $Enums.ExamAttemptStatus
     startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gradedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -68137,6 +68227,7 @@ export namespace Prisma {
     attemptNumber?: IntFieldUpdateOperationsInput | number
     status?: EnumExamAttemptStatusFieldUpdateOperationsInput | $Enums.ExamAttemptStatus
     startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gradedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -68150,6 +68241,7 @@ export namespace Prisma {
     attemptNumber?: IntFieldUpdateOperationsInput | number
     status?: EnumExamAttemptStatusFieldUpdateOperationsInput | $Enums.ExamAttemptStatus
     startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gradedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -68645,6 +68737,7 @@ export namespace Prisma {
     titleEn?: string | null
     descriptionAr?: string | null
     descriptionEn?: string | null
+    durationMinutes?: number | null
     opensAt?: Date | string | null
     dueAt?: Date | string | null
     passingPercent?: Decimal | DecimalJsLike | number | string
@@ -68961,6 +69054,7 @@ export namespace Prisma {
     titleEn?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionEn?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     opensAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passingPercent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -68980,6 +69074,7 @@ export namespace Prisma {
     titleEn?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionEn?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     opensAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passingPercent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -68999,6 +69094,7 @@ export namespace Prisma {
     titleEn?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionEn?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     opensAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passingPercent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -69477,6 +69573,7 @@ export namespace Prisma {
     attemptNumber?: number
     status?: $Enums.ExamAttemptStatus
     startedAt?: Date | string
+    expiresAt?: Date | string | null
     submittedAt?: Date | string | null
     gradedAt?: Date | string | null
     releasedAt?: Date | string | null
@@ -69560,6 +69657,7 @@ export namespace Prisma {
     attemptNumber?: IntFieldUpdateOperationsInput | number
     status?: EnumExamAttemptStatusFieldUpdateOperationsInput | $Enums.ExamAttemptStatus
     startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gradedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -69574,6 +69672,7 @@ export namespace Prisma {
     attemptNumber?: IntFieldUpdateOperationsInput | number
     status?: EnumExamAttemptStatusFieldUpdateOperationsInput | $Enums.ExamAttemptStatus
     startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gradedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -69587,6 +69686,7 @@ export namespace Prisma {
     attemptNumber?: IntFieldUpdateOperationsInput | number
     status?: EnumExamAttemptStatusFieldUpdateOperationsInput | $Enums.ExamAttemptStatus
     startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gradedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

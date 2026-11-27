@@ -12,13 +12,23 @@ export default async function AdminExamPage({
 }: {
   params: Promise<{ locale: string; courseId: string }>;
 }) {
-  const { locale, courseId, perms, base } = await adminCourseContext(params, "/exam", "exam.edit");
+  const { locale, courseId, perms, base } = await adminCourseContext(
+    params,
+    "/exam",
+    "exam.edit",
+  );
   const t = await getTranslations("admin.exam");
   const tq = await getTranslations("admin.questions");
   const tn = await getTranslations("admin.nav");
 
-  const course = await db.course.findUnique({ where: { id: courseId }, select: { examEnabled: true } });
-  const existing = await db.exam.findFirst({ where: { courseId, deletedAt: null }, select: { id: true } });
+  const course = await db.course.findUnique({
+    where: { id: courseId },
+    select: { examEnabled: true },
+  });
+  const existing = await db.exam.findFirst({
+    where: { courseId, deletedAt: null },
+    select: { id: true },
+  });
 
   if (!existing) {
     if (!course?.examEnabled) {
@@ -33,7 +43,11 @@ export default async function AdminExamPage({
         </div>
       );
     }
-    return perms.has("exam.create") ? <ExamForm mode="create" courseId={courseId} /> : <p className="alert-info">{t("noQuestions")}</p>;
+    return perms.has("exam.create") ? (
+      <ExamForm mode="create" courseId={courseId} />
+    ) : (
+      <p className="alert-info">{t("noQuestions")}</p>
+    );
   }
 
   const [exam, questions] = await Promise.all([
@@ -73,6 +87,7 @@ export default async function AdminExamPage({
           dueAt: exam.dueAt ? exam.dueAt.toISOString() : null,
           passingPercent: exam.passingPercent,
           attemptLimit: exam.attemptLimit,
+          durationMinutes: exam.durationMinutes,
           status: exam.status as "DRAFT" | "PUBLISHED",
         }}
       />
@@ -80,7 +95,10 @@ export default async function AdminExamPage({
       <section className="card stack gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="title-card">{t("questions")}</h2>
-          <Link href={`${base}/questions/new?examId=${exam.id}`} className="btn-outline btn-sm">
+          <Link
+            href={`${base}/questions/new?examId=${exam.id}`}
+            className="btn-outline btn-sm"
+          >
             {t("addQuestion")}
           </Link>
         </div>
@@ -94,22 +112,42 @@ export default async function AdminExamPage({
                   <tr key={q.id}>
                     <td>
                       <div className="font-medium text-ink" dir="auto">
-                        {q.body.length > 90 ? `${q.body.slice(0, 90)}…` : q.body}
+                        {q.body.length > 90
+                          ? `${q.body.slice(0, 90)}…`
+                          : q.body}
                       </div>
                       <div className="text-xs text-muted">
-                        {tq(`types.${q.type}`)} · {t("points", { points: formatNumber(q.points, locale) })}
+                        {tq(`types.${q.type}`)} ·{" "}
+                        {t("points", {
+                          points: formatNumber(q.points, locale),
+                        })}
                       </div>
                     </td>
                     <td>
                       <div className="cluster gap-2">
-                        <span className={q.status === "PUBLISHED" ? "badge-success" : "badge-warning"}>
-                          {q.status === "PUBLISHED" ? tq("published") : tq("draft")}
+                        <span
+                          className={
+                            q.status === "PUBLISHED"
+                              ? "badge-success"
+                              : "badge-warning"
+                          }
+                        >
+                          {q.status === "PUBLISHED"
+                            ? tq("published")
+                            : tq("draft")}
                         </span>
-                        {q.answerCount > 0 ? <span className="badge-muted">{t("answers", { count: String(q.answerCount) })}</span> : null}
+                        {q.answerCount > 0 ? (
+                          <span className="badge-muted">
+                            {t("answers", { count: String(q.answerCount) })}
+                          </span>
+                        ) : null}
                       </div>
                     </td>
                     <td className="text-end">
-                      <Link href={`${base}/questions/${q.id}`} className="link text-sm">
+                      <Link
+                        href={`${base}/questions/${q.id}`}
+                        className="link text-sm"
+                      >
                         {tq("edit")}
                       </Link>
                     </td>
