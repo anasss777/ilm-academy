@@ -1322,5 +1322,13 @@
     "retry": "Try again",
     "home": "Back to the home page",
     "reference": "Error reference: {digest}"
+  },
+  "examInstruction": {
+    "heading": "Dear student, please carefully observe the following instructions:",
+    "instruction1": "Read each question more than once before answering.",
+    "instruction2": "Make sure to place the correct mark next to each question.",
+    "instruction3": "Cheating or attempting to cheat is unbecoming of a student of Islamic knowledge.",
+    "instruction4": "Consulting any references related to the subject during the examination is prohibited.",
+    "instruction5": "Communicating with anyone during the examination for the purpose of seeking assistance is prohibited."
   }
 }
